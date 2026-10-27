@@ -7,13 +7,15 @@ import Grid from '~/components/blog/Grid.astro';
 import Button from '~/components/ui/Button.astro';
 import StructuredData from '~/components/common/StructuredData.astro';
 import { SITE, METADATA, I18N } from 'astrowind:config';
-import { categories } from '~/navigation';
+import { categories, gameCategory } from '~/navigation';
 import { getBlogPermalink, getPermalink } from '~/utils/permalinks';
-import { fetchPosts, findLatestPosts } from '~/utils/blog';
+import { fetchPosts } from '~/utils/blog';
 import favIconSvg from '~/assets/favicons/favicon.svg';
 
-const latestPosts = await findLatestPosts({ count: 6 });
 const allPosts = await fetchPosts();
+const isGame = (post: (typeof allPosts)[number]) => post.category?.title === gameCategory.text;
+const latestPosts = allPosts.filter((post) => !isGame(post)).slice(0, 6);
+const gamePosts = allPosts.filter(isGame).slice(0, 3);
 const countByCategory = (name: string) => allPosts.filter((post) => post.category?.title === name).length;
 
 const metadata = {
@@ -76,7 +78,7 @@ const structuredData = [
   <!-- 카테고리 -->
   <section class="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-12">
     <h2 class="mb-6 font-heading text-2xl font-bold text-heading dark:text-white">카테고리</h2>
-    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
       {
         categories.map(({ text, description, icon, href }) => (
           <a
@@ -98,7 +100,7 @@ const structuredData = [
   </section>
 
   <!-- 최신 글 -->
-  <section class="mx-auto max-w-6xl px-4 pt-8 pb-20 sm:px-6 md:pt-12">
+  <section class="mx-auto max-w-6xl px-4 pt-8 pb-16 sm:px-6 md:pt-12">
     <div class="mb-6 flex items-end justify-between">
       <h2 class="font-heading text-2xl font-bold text-heading dark:text-white">최신 글</h2>
       <a href={getBlogPermalink()} class="text-sm font-medium text-muted hover:text-primary dark:text-slate-400">
@@ -107,4 +109,27 @@ const structuredData = [
     </div>
     <Grid posts={latestPosts} />
   </section>
+
+  <!-- 무협 게임 개발기 -->
+  {
+    gamePosts.length > 0 && (
+      <section class="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+        <div class="rounded-3xl bg-indigo-50/60 p-6 md:p-10 dark:bg-slate-900">
+          <div class="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <h2 class="font-heading text-2xl font-bold text-heading dark:text-white">무협 게임 개발기</h2>
+              <p class="mt-1 text-sm text-muted dark:text-slate-400">{gameCategory.description}</p>
+            </div>
+            <a
+              href={gameCategory.href}
+              class="shrink-0 text-sm font-medium text-muted hover:text-primary dark:text-slate-400"
+            >
+              전체 보기 →
+            </a>
+          </div>
+          <Grid posts={gamePosts} />
+        </div>
+      </section>
+    )
+  }
 </Layout>
