@@ -24,7 +24,7 @@
 ### GitHub Pages 로 배포하려면
 
 1. 저장소 Settings → Pages → Source 를 **GitHub Actions** 로 변경
-2. Actions 탭 → **Deploy to GitHub Pages** → Run workflow (수동 배포)
+2. 기본 브랜치에 합쳐지면(Merge) 자동으로 배포됩니다. 필요하면 Actions 탭 → **Deploy to GitHub Pages** → Run workflow 로 직접 실행할 수도 있습니다.
 3. 워크플로가 빌드 시점에 `src/config.yaml` 의 `site`/`base` 를 Pages 주소에 맞게 자동으로 바꿉니다.
 
 ## 배포 전에 바꿀 것
