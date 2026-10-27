@@ -1,12 +1,12 @@
-import { getPermalink, getBlogPermalink, getAsset } from './utils/permalinks';
+import { cleanSlug, getPermalink, getBlogPermalink, getAsset } from './utils/permalinks';
 
 // 블로그 카테고리. 글 frontmatter 의 `category` 값과 이름이 같아야 합니다.
 export const categories = [
-  { text: '일상', description: '소소한 하루와 생각들', icon: 'tabler:coffee' },
-  { text: '개발', description: '코드, 도구, 배운 것들', icon: 'tabler:code' },
-  { text: '리뷰', description: '써 보고 남기는 솔직한 후기', icon: 'tabler:star' },
-  { text: '정보', description: '알아두면 쓸모 있는 팁', icon: 'tabler:bulb' },
-].map((category) => ({ ...category, href: getPermalink(category.text, 'category') }));
+  { text: '스마트폰', description: '아이폰·갤럭시, 앱 사용법과 데이터 옮기기', icon: 'tabler:device-mobile' },
+  { text: '윈도우·PC', description: '윈도우 설정, 단축키, PC 관리 팁', icon: 'tabler:device-desktop' },
+  { text: '오류 해결', description: '인터넷, 소리 등 자주 겪는 문제 해결법', icon: 'tabler:tool' },
+  { text: '웹·블로그', description: '무료 홈페이지 만들기와 블로그 운영 노하우', icon: 'tabler:world' },
+].map((category) => ({ ...category, href: getPermalink(cleanSlug(category.text), 'category') }));
 
 export const headerData = {
   links: [

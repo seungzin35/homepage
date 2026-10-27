@@ -7,6 +7,8 @@ import Image from '~/components/common/Image.astro';
 import { findImage } from '~/utils/images';
 import { getPermalink } from '~/utils/permalinks';
 import { getFormattedDate } from '~/utils/utils';
+import { Icon } from 'astro-icon/components';
+import { categories } from '~/navigation';
 
 export interface Props {
   post: Post;
@@ -17,6 +19,7 @@ const image = await findImage(post.image);
 
 const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : '';
 const Wrapper = link ? 'a' : 'div';
+const categoryIcon = categories.find(({ text }) => text === post.category?.title)?.icon || 'tabler:article';
 ---
 
 <article
@@ -25,7 +28,7 @@ const Wrapper = link ? 'a' : 'div';
   <Wrapper href={link || undefined} class="block">
     <div class="relative aspect-video overflow-hidden rounded-2xl bg-gray-100 dark:bg-slate-800 mb-4">
       {
-        image && (
+        image ? (
           <Image
             src={image}
             class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
@@ -38,6 +41,13 @@ const Wrapper = link ? 'a' : 'div';
             loading="lazy"
             decoding="async"
           />
+        ) : (
+          <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-sky-50 dark:from-slate-800 dark:via-slate-900 dark:to-indigo-950">
+            <Icon
+              name={categoryIcon}
+              class="h-14 w-14 text-indigo-300 transition duration-300 group-hover:scale-110 dark:text-indigo-400/60"
+            />
+          </div>
         )
       }
     </div>
