@@ -110,7 +110,8 @@ const load = async function (): Promise<Array<Post>> {
 
   const results = (await Promise.all(normalizedPosts))
     .sort((a, b) => b.publishDate.valueOf() - a.publishDate.valueOf())
-    .filter((post) => !post.draft);
+    // 예약 글: 발행일이 아직 오지 않은 글은 빌드에서 제외합니다. (매일 자동 배포 때 공개)
+    .filter((post) => !post.draft && post.publishDate.valueOf() <= Date.now());
 
   return results;
 };
