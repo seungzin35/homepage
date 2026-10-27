@@ -1,6 +1,8 @@
 ---
 publishDate: 2026-10-25T09:00:00+09:00
 title: '아이폰 사진을 윈도우 PC로 옮기는 가장 쉬운 방법'
+coverTitle: '아이폰 사진|[PC로] 옮기기'
+coverSub: '가장 쉬운 방법'
 excerpt: 별도 프로그램 없이 USB 케이블만으로 아이폰 사진을 윈도우 PC에 옮기는 방법과, HEIC 파일이 열리지 않을 때 해결법까지 정리했습니다.
 category: 스마트폰
 coverIcon: tabler:photo

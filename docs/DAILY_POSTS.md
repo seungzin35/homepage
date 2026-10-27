@@ -22,6 +22,8 @@
 - 파일: `src/data/post/<영문-슬러그>.md`
 - frontmatter: `publishDate` (그날 09:00, 10:00, 11:00 +09:00), `title`, `excerpt`, `category`, `coverIcon`, `tags`
 - `coverIcon`: 글 주제에 맞는 Tabler 아이콘 (예: `tabler:printer-off`, `tabler:bluetooth-off`). 다른 글과 겹치지 않게 고릅니다. 이름은 `node_modules/@iconify-json/tabler/icons.json` 에 있어야 합니다.
+- `coverTitle`: 표지에 크게 들어갈 제목. 한 줄에 7자 안팎, `|` 로 줄 나눔(2~3줄), 강조할 단어는 `[대괄호]` (첫 강조는 빨강, 두 번째는 파랑). 예: `'갤럭시|[화면 캡처]|방법 4가지'`
+- `coverSub`: 표지 노란 띠 문구, 12자 안팎. 예: `'긴 화면 스크롤 캡처까지'`
 - 이미지 넣지 않기 (`coverIcon` 아이콘으로 표지가 자동으로 나옵니다). 사진이 들어갈 곳에는 `<!-- 스크린샷 자리: ... -->` 주석.
 - 쉬운 한국어, 번호 매긴 단계, 소제목, 마지막에 정리. "메뉴 이름은 버전에 따라 다를 수 있다" 안내.
 - 다른 글 링크는 반드시 슬래시(/)로 시작: `[제목](/pc-no-sound)` (슬래시 없이 쓰면 실제 사이트에서 404가 납니다)

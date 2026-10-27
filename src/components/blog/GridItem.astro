@@ -40,7 +40,13 @@ const Wrapper = link ? 'a' : 'div';
             decoding="async"
           />
         ) : (
-          <CoverArt category={post.category?.title} icon={post.coverIcon} />
+          <CoverArt
+            category={post.category?.title}
+            icon={post.coverIcon}
+            title={post.title}
+            coverTitle={post.coverTitle}
+            coverSub={post.coverSub}
+          />
         )
       }
     </div>

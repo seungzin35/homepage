@@ -1,6 +1,8 @@
 ---
 publishDate: 2026-10-23T09:00:00+09:00
 title: '윈도우 11이 느려졌을 때 꼭 확인할 설정 6가지'
+coverTitle: '느려진|[윈도우 11]|빠르게'
+coverSub: '꼭 확인할 설정 6가지'
 excerpt: 새 프로그램을 설치하지 않고 윈도우 기본 설정만으로 PC를 가볍게 만드는 방법을 정리했습니다.
 category: 윈도우·PC
 coverIcon: tabler:rocket

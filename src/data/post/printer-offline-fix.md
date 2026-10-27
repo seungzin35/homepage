@@ -1,6 +1,8 @@
 ---
 publishDate: 2026-10-27T12:00:00+09:00
 title: '프린터가 오프라인으로 뜰 때 해결 방법 (윈도우 11)'
+coverTitle: '[프린터]|[오프라인]|해결 방법'
+coverSub: '순서대로 따라 하기'
 excerpt: 어제까지 잘 되던 프린터가 갑자기 '오프라인'으로 표시될 때, 간단한 것부터 순서대로 따라 할 수 있는 해결 방법을 정리했습니다.
 category: 오류 해결
 coverIcon: tabler:printer-off

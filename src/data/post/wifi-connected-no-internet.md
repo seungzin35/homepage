@@ -1,6 +1,8 @@
 ---
 publishDate: 2026-10-19T09:00:00+09:00
 title: '와이파이는 연결됐는데 인터넷이 안 될 때 해결 방법'
+coverTitle: '[인터넷]이|안 될 때'
+coverSub: '와이파이는 연결됐는데'
 excerpt: 와이파이 아이콘은 정상인데 인터넷만 안 될 때, 간단한 것부터 차례로 따라 할 수 있는 해결 순서를 정리했습니다.
 category: 오류 해결
 coverIcon: tabler:wifi-off

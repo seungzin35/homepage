@@ -21,6 +21,10 @@ export interface Post {
   imageAlt?: string;
   /** Icon for the generated cover art when there is no image. */
   coverIcon?: string;
+  /** Big headline on the cover art. '|' breaks lines, [brackets] color a keyword. */
+  coverTitle?: string;
+  /** Short line on the yellow band under the cover headline. */
+  coverSub?: string;
 
   category?: Taxonomy;
   tags?: Taxonomy[];

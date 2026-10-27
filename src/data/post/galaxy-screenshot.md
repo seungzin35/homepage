@@ -1,6 +1,8 @@
 ---
 publishDate: 2026-10-27T10:00:00+09:00
 title: '갤럭시 화면 캡처 방법 4가지 (긴 화면 스크롤 캡처까지)'
+coverTitle: '갤럭시|[화면 캡처]|방법 4가지'
+coverSub: '긴 화면 스크롤 캡처까지'
 excerpt: 버튼 캡처부터 손바닥으로 밀어서 캡처, 음성 캡처, 긴 화면을 한 번에 담는 스크롤 캡처까지 갤럭시 스크린샷 방법을 정리했습니다.
 category: 스마트폰
 coverIcon: tabler:screenshot

@@ -1,6 +1,8 @@
 ---
 publishDate: 2026-10-17T09:00:00+09:00
 title: '컴퓨터에서 갑자기 소리가 안 날 때 확인할 5가지'
+coverTitle: '컴퓨터|[소리]가|안 날 때'
+coverSub: '확인할 5가지'
 excerpt: 스피커도 멀쩡한데 PC에서 소리가 나지 않을 때, 출력 장치 선택부터 드라이버 재설치까지 순서대로 점검하는 방법입니다.
 category: 오류 해결
 coverIcon: tabler:volume-off

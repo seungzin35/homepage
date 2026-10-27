@@ -1,6 +1,8 @@
 ---
 publishDate: 2026-10-15T09:00:00+09:00
 title: '서버 비용 0원으로 나만의 홈페이지 만들기'
+coverTitle: '서버비 [0원]|홈페이지|만들기'
+coverSub: 'GitHub Pages로 무료 시작'
 excerpt: 이 블로그를 실제로 만든 방법입니다. 무료 템플릿과 GitHub Pages로 서버 비용 없이 홈페이지를 만드는 과정을 정리했습니다.
 category: 웹·블로그
 coverIcon: tabler:brand-github

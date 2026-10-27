@@ -1,6 +1,8 @@
 ---
 publishDate: 2026-10-27T12:30:00+09:00
 title: '블루투스 이어폰이 PC에 연결 안 될 때 해결 방법'
+coverTitle: '블루투스|[연결 안 될 때]'
+coverSub: '무선 이어폰 · 스피커'
 excerpt: 무선 이어폰이나 스피커가 윈도우 PC에 연결되지 않을 때, 페어링 모드 확인부터 장치 다시 등록까지 순서대로 해결하는 방법입니다.
 category: 오류 해결
 coverIcon: tabler:bluetooth-off

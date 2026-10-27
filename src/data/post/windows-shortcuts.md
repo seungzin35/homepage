@@ -1,6 +1,8 @@
 ---
 publishDate: 2026-10-21T09:00:00+09:00
 title: '알아두면 작업 속도가 달라지는 윈도우 단축키 10가지'
+coverTitle: '[윈도우]|단축키 10가지'
+coverSub: '작업 속도가 달라진다'
 excerpt: 화면 캡처, 클립보드 기록, 창 정리까지. 매일 쓰기 좋은 윈도우 단축키만 골라 정리했습니다.
 category: 윈도우·PC
 coverIcon: tabler:keyboard
