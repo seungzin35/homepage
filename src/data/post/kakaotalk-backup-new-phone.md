@@ -3,6 +3,7 @@ publishDate: 2026-10-27T09:00:00+09:00
 title: '카카오톡 대화 내용, 새 휴대폰으로 옮기는 방법'
 excerpt: 휴대폰을 바꾸기 전에 꼭 해야 할 카카오톡 대화 백업과 복원 순서를 정리했습니다. 무료 백업으로 옮겨지는 것과 안 옮겨지는 것까지 확인하세요.
 category: 스마트폰
+coverIcon: tabler:brand-kakao-talk
 tags:
   - 카카오톡
   - 백업

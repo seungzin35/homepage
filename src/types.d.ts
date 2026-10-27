@@ -19,6 +19,8 @@ export interface Post {
   image?: ImageMetadata | string;
   /** Alternative text for the cover image. */
   imageAlt?: string;
+  /** Icon for the generated cover art when there is no image. */
+  coverIcon?: string;
 
   category?: Taxonomy;
   tags?: Taxonomy[];

@@ -51,6 +51,7 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
     excerpt,
     image,
     imageAlt,
+    coverIcon,
     tags: rawTags = [],
     category: rawCategory,
     author,
@@ -86,6 +87,7 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
     excerpt: excerpt,
     image: image,
     imageAlt: imageAlt,
+    coverIcon: coverIcon,
 
     category: category,
     tags: tags,

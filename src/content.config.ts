@@ -59,6 +59,8 @@ const postCollection = defineCollection({
     image: z.string().optional(),
     /** Alternative text for the cover image. Leave empty for decorative stock photos. */
     imageAlt: z.string().optional(),
+    /** Icon for the generated cover art when there is no image, e.g. 'tabler:brand-windows'. */
+    coverIcon: z.string().optional(),
 
     category: z.string().optional(),
     tags: z.array(z.string()).optional(),

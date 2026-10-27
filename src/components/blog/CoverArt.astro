@@ -4,10 +4,12 @@ import { categories } from '~/navigation';
 
 export interface Props {
   category?: string;
+  /** Per-post icon; falls back to the category icon. */
+  icon?: string;
   size?: 'card' | 'hero';
 }
 
-const { category, size = 'card' } = Astro.props;
+const { category, icon: postIcon, size = 'card' } = Astro.props;
 
 // Pastel themes per category. Class names are written out in full so Tailwind can find them.
 const THEMES: Record<string, { bg: string; blob: string; icon: string; chip: string }> = {
@@ -44,7 +46,7 @@ const DEFAULT_THEME = {
 };
 
 const theme = (category && THEMES[category]) || DEFAULT_THEME;
-const icon = categories.find(({ text }) => text === category)?.icon || 'tabler:article';
+const icon = postIcon || categories.find(({ text }) => text === category)?.icon || 'tabler:article';
 const big = size === 'hero';
 ---
 

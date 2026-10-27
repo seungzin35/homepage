@@ -3,6 +3,7 @@ publishDate: 2026-10-13T09:00:00+09:00
 title: '블로그에 구글 애드센스 신청하기 전에 준비할 것'
 excerpt: 애드센스 승인을 받기 전에 블로그에 미리 갖춰 두면 좋은 기본 요소들을 체크리스트로 정리했습니다.
 category: 웹·블로그
+coverIcon: tabler:checklist
 tags:
   - 애드센스
   - 블로그 운영
