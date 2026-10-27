@@ -1,6 +1,6 @@
 site:
   name: ZIN 노트
-  site: 'https://seungzin35.github.io'
+  site: 'https://zinnote.kr'
   base: '/'
   trailingSlash: false
 
