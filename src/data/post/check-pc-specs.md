@@ -3,6 +3,7 @@ publishDate: 2026-10-27T11:00:00+09:00
 title: '내 컴퓨터 사양 확인하는 방법 3가지 (CPU, 램, 그래픽카드)'
 excerpt: 게임이나 프로그램 설치 전에 꼭 확인하는 내 PC 사양. 프로그램 설치 없이 윈도우 기본 기능만으로 CPU, 램, 그래픽카드를 확인하는 방법입니다.
 category: 윈도우·PC
+coverIcon: tabler:cpu
 tags:
   - 컴퓨터 사양
   - 윈도우11

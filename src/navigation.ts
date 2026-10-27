@@ -62,6 +62,6 @@ export const footerData = {
     { ariaLabel: 'Github', icon: 'tabler:brand-github', href: 'https://github.com/seungzin35' },
   ],
   footNote: `
-    © ${new Date().getFullYear()} 나의 블로그 · Built with <a class="underline" href="https://github.com/arthelokyo/astrowind">AstroWind</a>
+    © ${new Date().getFullYear()} ZIN 노트
   `,
 };

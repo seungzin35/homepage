@@ -97,7 +97,7 @@ const { post, url } = Astro.props;
         ) : (
           <div class="max-w-3xl mx-auto px-4 sm:px-6 mb-6">
             <div class="h-56 overflow-hidden rounded-3xl md:h-72">
-              <CoverArt category={post.category?.title} size="hero" />
+              <CoverArt category={post.category?.title} icon={post.coverIcon} size="hero" />
             </div>
           </div>
         )

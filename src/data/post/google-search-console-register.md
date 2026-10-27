@@ -3,6 +3,7 @@ publishDate: 2026-10-27T13:00:00+09:00
 title: '구글 서치 콘솔에 내 홈페이지 등록하는 방법 (사이트맵 제출까지)'
 excerpt: 내 홈페이지가 구글 검색에 나오게 하는 첫걸음, 구글 서치 콘솔 등록. 이 블로그를 실제로 등록하면서 정리한 과정입니다.
 category: 웹·블로그
+coverIcon: tabler:brand-google
 tags:
   - 구글 서치 콘솔
   - 검색 등록

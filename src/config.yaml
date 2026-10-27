@@ -1,5 +1,5 @@
 site:
-  name: 나의 블로그
+  name: ZIN 노트
   site: 'https://seungzin35.github.io'
   base: '/'
   trailingSlash: false
@@ -9,14 +9,14 @@ site:
 # Default SEO metadata
 metadata:
   title:
-    default: 나의 블로그
-    template: '%s — 나의 블로그'
+    default: ZIN 노트
+    template: '%s — ZIN 노트'
   description: '스마트폰·PC 사용법, 자주 겪는 오류 해결, 무료 홈페이지 만들기까지 IT 생활 팁을 쉽게 정리하는 블로그입니다.'
   robots:
     index: true
     follow: true
   openGraph:
-    site_name: 나의 블로그
+    site_name: ZIN 노트
     images:
       - url: '~/assets/images/default.png'
         width: 1200
