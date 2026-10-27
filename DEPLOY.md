@@ -15,16 +15,16 @@
 
 ## 다른 무료 옵션
 
-| 호스팅       | 설정 파일                             | 비고                                                                                                                         |
-| ------------ | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Vercel       | `vercel.json` (포함됨)                | 가장 쉬움. 단, Hobby(무료) 플랜은 **비상업적 용도만** 허용 → 회사 사이트면 부적합                                            |
-| Netlify      | `netlify.toml` (포함됨)               | 무료 월 대역폭/빌드 시간 한도 있음                                                                                           |
-| GitHub Pages | `.github/workflows/deploy-pages.yaml` | 완전 무료, 저장소가 **public** 이어야 함(무료 계정 기준). 주소가 `https://seungzin35.github.io/homepage` 처럼 하위 경로가 됨 |
+| 호스팅       | 설정 파일                                                 | 비고                                                                                                                         |
+| ------------ | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Vercel       | `vercel.json` (포함됨)                                    | 가장 쉬움. 단, Hobby(무료) 플랜은 **비상업적 용도만** 허용 → 회사 사이트면 부적합                                            |
+| Netlify      | `netlify.toml` (포함됨)                                   | 무료 월 대역폭/빌드 시간 한도 있음                                                                                           |
+| GitHub Pages | `.github/workflows/deploy-pages.yaml` (push 시 자동 배포) | 완전 무료, 저장소가 **public** 이어야 함(무료 계정 기준). 주소가 `https://seungzin35.github.io/homepage` 처럼 하위 경로가 됨 |
 
 ### GitHub Pages 로 배포하려면
 
 1. 저장소 Settings → Pages → Source 를 **GitHub Actions** 로 변경
-2. Actions 탭 → **Deploy to GitHub Pages** → Run workflow
+2. 기본 브랜치에 push 하면 자동 배포 (Actions 탭 → **Deploy to GitHub Pages** 에서 수동 실행도 가능)
 3. 워크플로가 빌드 시점에 `src/config.yaml` 의 `site`/`base` 를 Pages 주소에 맞게 자동으로 바꿉니다.
 
 ## 배포 전에 바꿀 것

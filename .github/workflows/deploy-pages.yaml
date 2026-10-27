@@ -1,12 +1,13 @@
 name: Deploy to GitHub Pages
 
-# 수동 실행 전용입니다. 먼저 저장소 Settings → Pages → Source 를 "GitHub Actions" 로 바꾼 뒤
-# Actions 탭에서 이 워크플로를 실행하세요. 자동 배포를 원하면 아래 push 트리거 주석을 해제하세요.
+# 기본 브랜치에 push 하면 자동으로 GitHub Pages 에 배포됩니다. (Actions 탭에서 수동 실행도 가능)
+# 먼저 저장소 Settings → Pages → Source 를 "GitHub Actions" 로 설정해야 합니다.
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
+      - claude/project-thread-ok12ma
 
 permissions:
   contents: read
