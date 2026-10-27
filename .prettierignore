@@ -1,4 +1,5 @@
 dist
 node_modules
 .github
-.changesetpublic/google*.html
+.changeset
+public/google*.html
