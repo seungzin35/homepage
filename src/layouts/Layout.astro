@@ -1,8 +1,6 @@
 ---
 import '~/assets/styles/tailwind.css';
 
-import { Font } from 'astro:assets';
-
 import { I18N } from 'astrowind:config';
 
 import CommonMeta from '~/components/common/CommonMeta.astro';
@@ -28,11 +26,16 @@ const { language, textDirection } = I18N;
 ---
 
 <!doctype html>
-<html lang={language} dir={textDirection} class="2xl:text-[20px]">
+<html lang={language} dir={textDirection} class="2xl:text-[19px]">
   <head>
     <CommonMeta />
     <Favicons />
-    <Font cssVariable="--font-inter" preload />
+    <!-- 한글 웹폰트 Pretendard (가변, 동적 서브셋) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
     <CustomStyles />
     <ApplyColorMode />
     <Metadata {...metadata} />
@@ -48,7 +51,7 @@ const { language, textDirection } = I18N;
     <slot name="head" />
   </head>
 
-  <body class="antialiased text-default bg-page tracking-tight min-h-screen flex flex-col">
+  <body class="antialiased text-default bg-page min-h-screen flex flex-col break-keep">
     <slot />
 
     <Intersect />

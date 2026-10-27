@@ -1,22 +1,27 @@
 ---
-// Font family is provided by Astro's native Fonts API (see `fonts` in
-// astro.config.ts and <Font /> in Layout.astro), exposed as `--font-inter`.
-// To switch typefaces, change the `fonts` entry and repoint `--aw-font-*` below.
+// Pretendard is loaded from a CDN stylesheet in Layout.astro (Korean + Latin).
+// To switch typefaces, change that <link> and repoint `--aw-font-*` below.
 ---
 
 <style is:inline>
   :root {
-    --aw-font-sans: var(--font-inter);
-    --aw-font-serif: var(--font-inter);
-    --aw-font-heading: var(--font-inter);
+    --aw-font-sans:
+      'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo',
+      'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    --aw-font-serif:
+      'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo',
+      'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    --aw-font-heading:
+      'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo',
+      'Noto Sans KR', 'Malgun Gothic', sans-serif;
 
-    --aw-color-primary: rgb(1 97 239);
-    --aw-color-secondary: rgb(1 84 207);
-    --aw-color-accent: rgb(109 40 217);
+    --aw-color-primary: rgb(79 70 229);
+    --aw-color-secondary: rgb(67 56 202);
+    --aw-color-accent: rgb(236 72 153);
 
-    --aw-color-text-heading: rgb(0 0 0);
-    --aw-color-text-default: rgb(16 16 16);
-    --aw-color-text-muted: rgb(16 16 16 / 66%);
+    --aw-color-text-heading: rgb(17 24 39);
+    --aw-color-text-default: rgb(31 41 55);
+    --aw-color-text-muted: rgb(75 85 99);
     --aw-color-bg-page: rgb(255 255 255);
 
     --aw-color-bg-page-dark: rgb(8 9 10);
@@ -27,13 +32,19 @@
   }
 
   .dark {
-    --aw-font-sans: var(--font-inter);
-    --aw-font-serif: var(--font-inter);
-    --aw-font-heading: var(--font-inter);
+    --aw-font-sans:
+      'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo',
+      'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    --aw-font-serif:
+      'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo',
+      'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    --aw-font-heading:
+      'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo',
+      'Noto Sans KR', 'Malgun Gothic', sans-serif;
 
-    --aw-color-primary: rgb(1 97 239);
-    --aw-color-secondary: rgb(1 84 207);
-    --aw-color-accent: rgb(109 40 217);
+    --aw-color-primary: rgb(99 102 241);
+    --aw-color-secondary: rgb(165 180 252);
+    --aw-color-accent: rgb(244 114 182);
 
     --aw-color-text-heading: rgb(247, 248, 248);
     --aw-color-text-default: rgb(229 236 246);

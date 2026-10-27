@@ -15,10 +15,21 @@ const createPath = (...params: string[]) => {
 
 const BASE_PATHNAME = SITE.base || '/';
 
+// limax drops Hangul entirely ('일상' → ''), so segments containing Korean keep
+// their letters and only have spaces/punctuation collapsed into hyphens.
+const HANGUL = /[\u3131-\u318E\uAC00-\uD7A3]/;
+const slugifySegment = (text: string) =>
+  HANGUL.test(text)
+    ? text
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, '-')
+        .replace(/^-+|-+$/g, '')
+    : slugify(text);
+
 export const cleanSlug = (text = '') =>
   trimSlash(text)
     .split('/')
-    .map((slug) => slugify(slug))
+    .map((slug) => slugifySegment(slug))
     .join('/');
 
 export const BLOG_BASE = cleanSlug(APP_BLOG?.list?.pathname);

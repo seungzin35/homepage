@@ -6,6 +6,7 @@ import Image from '~/components/common/Image.astro';
 
 import { findImage } from '~/utils/images';
 import { getPermalink } from '~/utils/permalinks';
+import { getFormattedDate } from '~/utils/utils';
 
 export interface Props {
   post: Post;
@@ -15,33 +16,19 @@ const { post } = Astro.props;
 const image = await findImage(post.image);
 
 const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : '';
+const Wrapper = link ? 'a' : 'div';
 ---
 
 <article
-  class="mb-6 transition intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
+  class="group transition intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
 >
-  <div class="relative md:h-64 bg-gray-400 dark:bg-slate-700 rounded shadow-lg mb-6">
-    {
-      image &&
-        (link ? (
-          <a href={link}>
-            <Image
-              src={image}
-              class="w-full md:h-full object-cover rounded shadow-lg bg-gray-400 dark:bg-slate-700"
-              widths={[400, 900]}
-              width={900}
-              height={506}
-              sizes="(max-width: 900px) 400px, 900px"
-              alt={post.title}
-              format="webp"
-              loading="lazy"
-              decoding="async"
-            />
-          </a>
-        ) : (
+  <Wrapper href={link || undefined} class="block">
+    <div class="relative aspect-video overflow-hidden rounded-2xl bg-gray-100 dark:bg-slate-800 mb-4">
+      {
+        image && (
           <Image
             src={image}
-            class="w-full md:h-full object-cover rounded shadow-lg bg-gray-400 dark:bg-slate-700"
+            class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
             widths={[400, 900]}
             width={900}
             height={506}
@@ -51,21 +38,22 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
             loading="lazy"
             decoding="async"
           />
-        ))
-    }
-  </div>
+        )
+      }
+    </div>
 
-  <h3 class="text-xl sm:text-2xl font-bold leading-tight mb-2 font-heading dark:text-slate-300">
-    {
-      link ? (
-        <a class="inline-block hover:text-primary dark:hover:text-blue-700 transition ease-in duration-200" href={link}>
-          {post.title}
-        </a>
-      ) : (
-        post.title
-      )
-    }
-  </h3>
+    <div class="mb-2 flex items-center gap-2 text-sm text-muted dark:text-slate-400">
+      {post.category && <span class="font-semibold text-primary dark:text-indigo-300">{post.category.title}</span>}
+      {post.category && <span aria-hidden="true">·</span>}
+      <time datetime={post.publishDate.toISOString()}>{getFormattedDate(post.publishDate)}</time>
+    </div>
 
-  <p class="text-muted dark:text-slate-400 text-lg">{post.excerpt}</p>
+    <h3
+      class="text-xl font-bold leading-snug mb-2 font-heading text-heading transition group-hover:text-primary dark:text-slate-200 dark:group-hover:text-indigo-300"
+    >
+      {post.title}
+    </h3>
+
+    {post.excerpt && <p class="text-muted dark:text-slate-400 line-clamp-2">{post.excerpt}</p>}
+  </Wrapper>
 </article>

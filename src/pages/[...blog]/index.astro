@@ -80,8 +80,8 @@ const articleSchema = {
 };
 
 const breadcrumbs = [
-  { text: 'Home', href: getPermalink('/') },
-  ...(isBlogListRouteEnabled ? [{ text: 'Blog', href: getBlogPermalink() }] : []),
+  { text: '홈', href: getPermalink('/') },
+  ...(isBlogListRouteEnabled ? [{ text: '블로그', href: getBlogPermalink() }] : []),
   ...(post.category && isBlogCategoryRouteEnabled
     ? [{ text: post.category.title, href: getPermalink(post.category.slug, 'category') }]
     : []),

@@ -5,7 +5,7 @@ import Layout from '~/layouts/PageLayout.astro';
 import BlogList from '~/components/blog/List.astro';
 import Headline from '~/components/blog/Headline.astro';
 import Pagination from '~/components/blog/Pagination.astro';
-import Newsletter from '~/components/widgets/Newsletter.astro';
+import CategoryNav from '~/components/blog/CategoryNav.astro';
 import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
 import { getPermalink, getBlogPermalink } from '~/utils/permalinks';
 // import PostTags from "~/components/blog/Tags.astro";
@@ -24,19 +24,18 @@ const { page } = Astro.props as Props;
 const currentPage = page.currentPage ?? 1;
 
 const breadcrumbs = [
-  { text: 'Home', href: getPermalink('/') },
+  { text: '홈', href: getPermalink('/') },
   ...(currentPage > 1
-    ? [{ text: 'Blog', href: getBlogPermalink() }, { text: `Page ${currentPage}` }]
-    : [{ text: 'Blog' }]),
+    ? [{ text: '블로그', href: getBlogPermalink() }, { text: `${currentPage}페이지` }]
+    : [{ text: '블로그' }]),
 ];
 
 // const allCategories = await findCategories();
 // const allTags = await findTags();
 
 const metadata = {
-  title: `Blog${currentPage > 1 ? ` — Page ${currentPage}` : ''}`,
-  description:
-    'Articles about Astro, Tailwind CSS and the AstroWind template: tutorials, customisation guides and web development notes.',
+  title: `블로그${currentPage > 1 ? ` — ${currentPage}페이지` : ''}`,
+  description: '일상, 개발, 리뷰, 유용한 정보까지. 블로그의 모든 글을 최신순으로 모았습니다.',
   robots: {
     index: blogListRobots?.index && currentPage === 1,
     follow: blogListRobots?.follow,
@@ -54,11 +53,8 @@ const metadata = {
   </Fragment>
   <Breadcrumbs bar items={breadcrumbs} />
   <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
-    <Headline
-      subtitle="A statically generated blog example with news, tutorials, resources and other interesting content related to AstroWind"
-    >
-      The Blog
-    </Headline>
+    <Headline subtitle="최신 글부터 차례로 모았습니다">전체 글</Headline>
+    <CategoryNav current="전체" class="-mt-4 mb-12 md:-mt-8" />
     <BlogList posts={page.data} />
     <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
     <!--
@@ -66,12 +62,4 @@ const metadata = {
       <PostTags tags={allTags}  title="Search by Tags:" />
     -->
   </section>
-  <Newsletter
-    tagline="Newsletter"
-    title="New articles in your inbox"
-    subtitle="Tutorials and notes about Astro, Tailwind CSS and the template, when they are published. Nothing else."
-    button="Subscribe"
-    disclaimer="Unsubscribe with one click. This form is a template: pass an <code>action</code> to connect it to your email tool."
-    classes={{ container: 'max-w-4xl' }}
-  />
 </Layout>

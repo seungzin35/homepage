@@ -1,6 +1,6 @@
 site:
-  name: AstroWind
-  site: 'https://astrowind.vercel.app'
+  name: 나의 블로그
+  site: 'https://seungzin35.github.io'
   base: '/'
   trailingSlash: false
 
@@ -9,32 +9,30 @@ site:
 # Default SEO metadata
 metadata:
   title:
-    default: AstroWind
-    template: '%s — AstroWind'
-  description: "\U0001F680 Suitable for Startups, Small Business, Sass Websites, Professional Portfolios, Marketing Websites, Landing Pages & Blogs."
+    default: 나의 블로그
+    template: '%s — 나의 블로그'
+  description: '일상, 개발, 리뷰, 유용한 정보를 기록하는 개인 블로그입니다.'
   robots:
     index: true
     follow: true
   openGraph:
-    site_name: AstroWind
+    site_name: 나의 블로그
     images:
       - url: '~/assets/images/default.png'
         width: 1200
         height: 628
     type: website
   twitter:
-    handle: '@arthelokyo'
-    site: '@arthelokyo'
     cardType: summary_large_image
 
 i18n:
-  language: en
+  language: ko
   textDirection: ltr
 
 apps:
   blog:
     isEnabled: true
-    postsPerPage: 8
+    postsPerPage: 10
 
     post:
       isEnabled: true
