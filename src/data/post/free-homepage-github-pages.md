@@ -65,3 +65,5 @@ category: 웹·블로그
 ## 정리
 
 **템플릿 → GitHub 저장소 → 마크다운으로 글쓰기 → GitHub Pages 배포.** 서버를 직접 관리하지 않아도 되니, 글 쓰는 데만 집중할 수 있다는 것이 가장 큰 장점입니다.
+
+_참고: GitHub Docs 「GitHub Pages 정보」_
