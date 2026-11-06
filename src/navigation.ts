@@ -12,10 +12,16 @@ export const categories = [
     icon: 'tabler:swords',
     isGame: true,
   },
+  {
+    text: '삼국지 게임',
+    description: '현대인이 184년 한나라 말기에 떨어져 용병이 되는 웹 RPG 「삼국지 회귀」 개발일지',
+    icon: 'tabler:flag-3',
+    isGame: true,
+  },
 ].map((category) => ({ ...category, href: getPermalink(cleanSlug(category.text), 'category') }));
 
 const itCategories = categories.filter((category) => !category.isGame);
-export const gameCategory = categories.find((category) => category.isGame)!;
+export const gameCategories = categories.filter((category) => category.isGame);
 
 export const headerData = {
   links: [
@@ -28,8 +34,8 @@ export const headerData = {
       links: itCategories.map(({ text, href }) => ({ text, href })),
     },
     {
-      text: '무협 게임',
-      href: gameCategory.href,
+      text: '게임 개발기',
+      links: gameCategories.map(({ text, href }) => ({ text, href })),
     },
     {
       text: '소개',

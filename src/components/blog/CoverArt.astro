@@ -26,6 +26,7 @@ const TINTS: Record<string, string> = {
   '윈도우·PC': 'from-sky-50 to-blue-100',
   '오류 해결': 'from-amber-50 via-sky-50 to-sky-100',
   '웹·블로그': 'from-emerald-50 via-sky-50 to-sky-100',
+  '삼국지 게임': 'from-amber-50 via-orange-50 to-yellow-100',
 };
 const tint = (category && TINTS[category]) || 'from-indigo-50 to-sky-100';
 const icon = postIcon || categories.find(({ text }) => text === category)?.icon || 'tabler:article';
