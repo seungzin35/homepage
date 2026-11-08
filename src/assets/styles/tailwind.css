@@ -150,3 +150,10 @@
   color: var(--shiki-dark) !important;
   background-color: var(--shiki-dark-bg) !important;
 }
+
+/* Tall phone screenshots in posts: keep them readable instead of filling the screen. */
+.prose img {
+  max-height: 640px;
+  width: auto;
+  margin-inline: auto;
+}
