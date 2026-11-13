@@ -25,4 +25,5 @@ pnpm-debug.log*
 pnpm-lock.yaml
 pnpm-workspace.yaml
 
-.astro.wrangler/
+.astro
+.wrangler/
