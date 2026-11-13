@@ -1,2 +1,11 @@
+# Pages (HTML) and other files: let the browser reuse a copy for 2 minutes.
+# The site prefetches links as they scroll into view; without this, Cloudflare's
+# default (max-age=0, must-revalidate) makes every tap fetch the page again, so
+# tapping a menu/category button felt slow on phones.
+/*
+  Cache-Control: public, max-age=120
+
+# Hashed build assets never change: cache for a year. "!" drops the rule above.
 /_astro/*
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
