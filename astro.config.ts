@@ -34,7 +34,11 @@ export default defineConfig({
   },
 
   integrations: [
-    sitemap(),
+    // Leave out pages that carry noindex (tag pages, blog list page 2+), so the
+    // sitemap only lists pages we want in search results.
+    sitemap({
+      filter: (page) => !/\/tag\//.test(page) && !/\/blog\/\d+\/?$/.test(page),
+    }),
     mdx(),
     icon({
       // Local SVG icons (used as <Icon name="file-name" />) live next to the other assets.

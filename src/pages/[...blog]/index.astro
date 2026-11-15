@@ -71,8 +71,10 @@ const articleSchema = {
   description: post.excerpt,
   datePublished: post.publishDate.toISOString(),
   dateModified: (post.updateDate ?? post.publishDate).toISOString(),
-  ...(post.author ? { author: { '@type': 'Person', name: post.author } } : {}),
-  publisher: { '@type': 'Organization', name: SITE?.name },
+  author: post.author
+    ? { '@type': 'Person', name: post.author }
+    : { '@type': 'Organization', name: SITE?.name, url: new URL('/about', Astro.site).toString() },
+  publisher: { '@type': 'Organization', name: SITE?.name, url: SITE?.site },
   ...(imageUrl ? { image: imageUrl.startsWith('http') ? imageUrl : new URL(imageUrl, Astro.site).toString() } : {}),
   ...(post.category ? { articleSection: post.category.title } : {}),
   ...(post.tags?.length ? { keywords: post.tags.map((tag) => tag.title).join(', ') } : {}),

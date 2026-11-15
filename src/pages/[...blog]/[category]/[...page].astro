@@ -35,7 +35,9 @@ const breadcrumbs = [
 
 const metadata = {
   title: `${category.title}${currentPage > 1 ? ` — ${currentPage}페이지` : ''}`,
-  description: `${category.title} 카테고리의 글 모음입니다.`,
+  description: categoryInfo?.description
+    ? `${category.title}: ${categoryInfo.description}. ZIN 노트의 ${category.title} 글을 모았습니다.`
+    : `${category.title} 카테고리의 글 모음입니다.`,
   robots: {
     index: blogCategoryRobots?.index,
     follow: blogCategoryRobots?.follow,
