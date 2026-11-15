@@ -7,6 +7,12 @@ export const categories = [
   { text: '오류 해결', description: '인터넷, 소리 등 자주 겪는 문제 해결법', icon: 'tabler:tool' },
   { text: '웹·블로그', description: '무료 홈페이지 만들기와 블로그 운영 노하우', icon: 'tabler:world' },
   {
+    text: 'AI 활용',
+    description: '클로드·ChatGPT에 쓸모 있는 스킬을 직접 설치하고 써 본 후기',
+    icon: 'tabler:sparkles',
+    isAi: true,
+  },
+  {
     text: '무협 게임',
     description: '직접 만드는 오프라인 무협 RPG의 세계관과 개발기',
     icon: 'tabler:swords',
@@ -20,7 +26,8 @@ export const categories = [
   },
 ].map((category) => ({ ...category, href: getPermalink(cleanSlug(category.text), 'category') }));
 
-const itCategories = categories.filter((category) => !category.isGame);
+const itCategories = categories.filter((category) => !category.isGame && !category.isAi);
+const aiCategory = categories.find((category) => category.isAi);
 export const gameCategories = categories.filter((category) => category.isGame);
 
 export const headerData = {
@@ -33,6 +40,7 @@ export const headerData = {
       text: 'IT 가이드',
       links: itCategories.map(({ text, href }) => ({ text, href })),
     },
+    ...(aiCategory ? [{ text: aiCategory.text, href: aiCategory.href }] : []),
     {
       text: '게임 개발기',
       links: gameCategories.map(({ text, href }) => ({ text, href })),
