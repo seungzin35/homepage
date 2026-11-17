@@ -94,4 +94,8 @@ PC 크롬에서는 **시크릿 창**으로 같은 주소를 열어 봅니다. �
 
 크롬이 전반적으로 이상하게 동작한다면 [크롬 캐시와 쿠키 삭제 방법](/chrome-clear-cache-cookies)도 한 번 해 보세요.
 
+## 함께 보면 좋은 글
+
+- [크롬 팝업 차단 해제 방법 (특정 사이트만 허용하기, PC·안드로이드)](/chrome-popup-allow-block)
+
 _참고: Google Chrome 고객센터 「Chrome의 일반적인 오류 메시지 관련 도움말 보기」, 「Chrome의 연결 및 로드 오류 해결하기」, Microsoft 지원 「Windows에서 시간, 날짜 및 표준 시간대 설정」_
