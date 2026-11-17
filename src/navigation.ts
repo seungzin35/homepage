@@ -13,6 +13,12 @@ export const categories = [
     isAi: true,
   },
   {
+    text: '웹소설',
+    description: '문피아에 연재 중인 웹소설의 유료화 도전기, 실제 조회수와 선호작 숫자 그대로',
+    icon: 'tabler:book',
+    isNovel: true,
+  },
+  {
     text: '무협 게임',
     description: '직접 만드는 오프라인 무협 RPG의 세계관과 개발기',
     icon: 'tabler:swords',
@@ -26,8 +32,9 @@ export const categories = [
   },
 ].map((category) => ({ ...category, href: getPermalink(cleanSlug(category.text), 'category') }));
 
-const itCategories = categories.filter((category) => !category.isGame && !category.isAi);
+const itCategories = categories.filter((category) => !category.isGame && !category.isAi && !category.isNovel);
 const aiCategory = categories.find((category) => category.isAi);
+const novelCategory = categories.find((category) => category.isNovel);
 export const gameCategories = categories.filter((category) => category.isGame);
 
 export const headerData = {
@@ -41,6 +48,7 @@ export const headerData = {
       links: itCategories.map(({ text, href }) => ({ text, href })),
     },
     ...(aiCategory ? [{ text: aiCategory.text, href: aiCategory.href }] : []),
+    ...(novelCategory ? [{ text: novelCategory.text, href: novelCategory.href }] : []),
     {
       text: '게임 개발기',
       links: gameCategories.map(({ text, href }) => ({ text, href })),
