@@ -11,7 +11,7 @@ metadata:
   title:
     default: ZIN 노트
     template: '%s — ZIN 노트'
-  description: '스마트폰·PC 사용법, 자주 겪는 오류 해결, 무료 홈페이지 만들기까지 IT 생활 팁을 쉽게 정리하는 블로그입니다.'
+  description: '40대 직장인이 AI와 함께 혼자 만드는 도전 기록. 직접 겪은 스마트폰·PC 문제 해결, 무협·삼국지 게임 개발기, 웹소설 유료화 도전기를 실제 화면과 숫자 그대로 남깁니다.'
   robots:
     index: true
     follow: true

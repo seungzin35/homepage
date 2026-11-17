@@ -8,7 +8,7 @@ import { getBlogPermalink } from '~/utils/permalinks';
 
 const metadata = {
   title: '소개',
-  description: '40대 아재가 서버 비용 0원으로 홈페이지 만들기에 도전한 이야기와 이 블로그를 소개합니다.',
+  description: '40대 직장인 아재가 AI와 함께 홈페이지, 게임, 웹소설에 도전하는 기록. 이 블로그를 소개합니다.',
 };
 
 const email = 'seungzin@naver.com';
@@ -32,7 +32,7 @@ const timeline = [
   {
     step: '4단계',
     title: '글 쓰고 다듬기',
-    text: '지금 이 단계입니다. 직접 겪은 IT 문제와 해결법을 하나씩 쌓아 가고 있습니다.',
+    text: '지금 이 단계입니다. 직접 겪은 IT 문제와 해결법, 게임 개발기, 웹소설 도전기를 하나씩 쌓아 가고 있습니다.',
   },
 ];
 ---
@@ -83,8 +83,8 @@ const timeline = [
     <div class="prose prose-lg mt-12 max-w-none dark:prose-invert">
       <h2>이 블로그에서 다루는 것</h2>
       <p>
-        직접 해 보고 확인한 것만 씁니다. 어려운 용어 대신, 화면에서 무엇을 누르면 되는지 순서대로 알려 드리는 게
-        목표입니다.
+        직접 해 보고 확인한 것만 씁니다. IT 글은 화면에서 무엇을 누르면 되는지 순서대로 알려 드리고, 게임과 웹소설은
+        만드는 과정과 실제 숫자를 잘 된 날도, 안 된 날도 그대로 남깁니다.
       </p>
     </div>
 
@@ -122,6 +122,11 @@ const timeline = [
         용병이 되는 웹 RPG <strong>「삼국지 회귀」</strong>입니다. 개발 과정은{' '}
         <a href={categories.find((category) => category.text === '삼국지 게임')?.href}>삼국지 게임</a> 메뉴에 적고 있어요.
       </p>
+      <p>
+        웹소설도 씁니다. 문피아에서 <strong>이천재</strong>라는 이름으로 현대판타지와 무협 두 작품을 연재하고 있고,
+        목표는 유료화예요. 조회수와 선호작 숫자는{' '}
+        <a href={categories.find((category) => category.text === '웹소설')?.href}>웹소설</a> 메뉴에 그대로 공개하고 있어요.
+      </p>
 
       <h2>앞으로의 목표</h2>
       <ul>
@@ -129,6 +134,8 @@ const timeline = [
         <li>✅ 내 이름으로 된 도메인 연결하기 (zinnote.kr, 완료)</li>
         <li>무협 게임을 휴대폰 앱으로 출시하기</li>
         <li>「삼국지 회귀」 1장 완성하기</li>
+        <li>웹소설 유료화하기</li>
+        <li>구글 애드센스 승인받기</li>
       </ul>
       <p>늦게 시작했지만, 천천히 끝까지 가 보겠습니다. 같이 지켜봐 주세요.</p>
 
