@@ -112,4 +112,8 @@ tags:
 
 새 휴대폰으로 바꾸면서 카카오톡 대화도 옮겨야 한다면 [카카오톡 대화 내용, 새 휴대폰으로 옮기는 방법](/kakaotalk-backup-new-phone)도 함께 참고하세요.
 
+## 함께 보면 좋은 글
+
+- [갤럭시 화면 캡처 방법 4가지 (긴 화면 스크롤 캡처까지)](/galaxy-screenshot)
+
 _참고: 삼성전자서비스 「갤럭시 스토어(Galaxy Store), 앱 다운로드 시 메모리가 부족하다고 나옵니다」, 「갤럭시, 소프트웨어를 업데이트할 수 없을 때 조치 방법」, 「갤러리에 저장된 사진 삭제 및 휴지통 복원 방법이 궁금합니다」, 「갤럭시 One UI 6, 내 파일 앱의 향상된 휴지통 기능 안내」, Samsung 「Free up storage space on your Samsung phone or tablet」_
