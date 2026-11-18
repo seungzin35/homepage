@@ -5,8 +5,14 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     let changed = false;
-    if (url.hostname === 'www.zinnote.kr') { url.hostname = 'zinnote.kr'; changed = true; }
-    if (url.protocol === 'http:' && url.hostname.endsWith('zinnote.kr')) { url.protocol = 'https:'; changed = true; }
+    if (url.hostname === 'www.zinnote.kr') {
+      url.hostname = 'zinnote.kr';
+      changed = true;
+    }
+    if (url.protocol === 'http:' && url.hostname.endsWith('zinnote.kr')) {
+      url.protocol = 'https:';
+      changed = true;
+    }
     if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
       url.pathname = url.pathname.replace(/\/+$/, '') || '/';
       changed = true;
