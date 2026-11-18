@@ -84,4 +84,8 @@ tags:
 
 **속성 추가(URL 접두어) → HTML 파일로 소유권 확인 → 사이트맵 제출.** 한 번만 해 두면 이후로는 글만 쓰면 됩니다.
 
+## 함께 보면 좋은 글
+
+- [클로드 스킬 설치 방법, SEO 점검 스킬로 내 블로그를 점검해 봤습니다](/claude-skill-seo-audit)
+
 _참고: Google Search Console 고객센터 「사이트 소유권 확인」, 「Sitemaps 보고서」_

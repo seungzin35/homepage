@@ -71,4 +71,9 @@ ipconfig /flushdns
 
 대부분은 1~3단계에서 해결됩니다.
 
+## 함께 보면 좋은 글
+
+- [갤럭시 와이파이가 저절로 꺼지거나 켜질 때 해결 방법](/galaxy-wifi-turns-off-by-itself)
+- [노트북에 저장된 와이파이 비밀번호 확인하는 방법 (윈도우 11)](/windows-wifi-password)
+
 _메뉴 이름은 윈도우 버전에 따라 조금 다를 수 있습니다. (참고: Microsoft 고객지원 「Windows에서 Wi-Fi 연결 문제 해결」)_
