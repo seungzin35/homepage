@@ -111,4 +111,4 @@ ZIP 파일을 만들 때 주의할 점도 있습니다. ZIP 안에 **스킬 폴�
 - 설치는 **Customize > Skills > + > Create skill > Upload a skill** 에서 ZIP 파일을 올리면 됩니다.
 - 스킬은 믿을 수 있는 곳에서 받은 것만 쓰고, 설치 전에 내용을 한 번 확인합니다.
 
-다음 글에서도 직접 설치해 본 AI 스킬을 하나씩 소개하겠습니다.
+다음 글: [AI가 쓴 글, 티 안 나게 고치는 법: Humanizer 스킬 써 보기](/ai-text-humanizer-skill)
