@@ -18,6 +18,12 @@ export default {
       changed = true;
     }
     if (changed) return Response.redirect(url.toString(), 301);
-    return env.ASSETS.fetch(request);
+    const res = await env.ASSETS.fetch(request);
+    // The assets layer answers /foo/index.html with a 307; make it permanent too.
+    if (res.status === 307 || res.status === 308) {
+      const loc = res.headers.get('Location');
+      if (loc) return Response.redirect(new URL(loc, url).toString(), 301);
+    }
+    return res;
   },
 };
