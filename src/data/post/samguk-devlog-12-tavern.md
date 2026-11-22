@@ -104,3 +104,7 @@ tags:
 1장 데모는 itch.io에서 브라우저로 바로 해 볼 수 있습니다.
 
 - 「삼국지 회귀」 데모: [https://zinnote.itch.io/samguk-hoegwi](https://zinnote.itch.io/samguk-hoegwi)
+
+## 함께 보면 좋은 글
+
+- [삼국지 회귀 개발일지 13탄: 흑풍채, 두목을 사로잡아 부하로 삼기](/samguk-devlog-13-heukpung)
