@@ -18,6 +18,11 @@ export default {
       changed = true;
     }
     if (changed) return Response.redirect(url.toString(), 301);
+    // Many tools (and Naver) look for /sitemap.xml; serve the generated sitemap there.
+    if (url.pathname === '/sitemap.xml') {
+      url.pathname = '/sitemap-0.xml';
+      return env.ASSETS.fetch(new Request(url, request));
+    }
     const res = await env.ASSETS.fetch(request);
     // The assets layer answers /foo/index.html with a 307; make it permanent too.
     if (res.status === 307 || res.status === 308) {
