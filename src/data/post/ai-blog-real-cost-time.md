@@ -67,5 +67,6 @@ tags:
 
 ## 함께 보면 좋은 글
 
+- [ChatGPT로 업무용 데이터 도구 사이트를 만들었습니다: DataWork Tools 소개](/chatgpt-datawork-tools-site)
 - [GitHub 계정이 갑자기 정지됐다가 풀린 후기: 블로그가 404가 된 며칠](/github-account-suspended-restored)
 - [클로드 스킬 설치 방법, SEO 점검 스킬로 내 블로그를 점검해 봤습니다](/claude-skill-seo-audit)
