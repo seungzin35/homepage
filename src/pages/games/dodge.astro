@@ -310,7 +310,10 @@ const faqs = [
       ctx.lineTo(W, y);
       ctx.stroke();
     }
-    for (const s of shots) s.kind === 'star' ? drawStar(s) : drawKnife(s);
+    for (const s of shots) {
+      if (s.kind === 'star') drawStar(s);
+      else drawKnife(s);
+    }
     drawPlayer();
 
     ctx.fillStyle = '#1e293b';
