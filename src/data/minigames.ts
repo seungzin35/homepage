@@ -1,5 +1,5 @@
 // 미니게임 목록. /games 목록 페이지, 메인화면, 각 게임 페이지의 "다른 게임" 링크가 이 목록을 씁니다.
-export type MiniGameGroup = 'party' | 'solo';
+export type MiniGameGroup = 'party' | 'brain' | 'kids' | 'solo';
 
 export interface MiniGame {
   slug: string;
@@ -17,6 +17,16 @@ export const miniGameGroups: Array<{ id: MiniGameGroup; title: string; descripti
     id: 'party',
     title: '모임 도구',
     description: '모임, 회식, 회사에서 휴대폰 하나로 바로 쓰는 뽑기·내기 도구',
+  },
+  {
+    id: 'brain',
+    title: '두뇌 운동',
+    description: '큰 글씨, 큰 버튼. 부모님과 함께 하기 좋은 기억력·집중력 게임',
+  },
+  {
+    id: 'kids',
+    title: '어린이 · 온 가족',
+    description: '구구단, 숫자 추리처럼 놀면서 배우는 게임',
   },
   {
     id: 'solo',
@@ -70,6 +80,56 @@ export const miniGames: MiniGame[] = [
     group: 'party',
   },
   {
+    slug: 'memory',
+    name: '같은 그림 짝 맞추기',
+    icon: '🃏',
+    summary: '카드를 두 장씩 뒤집어 같은 그림을 찾는 기억력 게임. 카드 12·16·20장.',
+    tags: ['기억력', '큰 글씨'],
+    group: 'brain',
+    home: true,
+  },
+  {
+    slug: 'number-order',
+    name: '1부터 순서대로 누르기',
+    icon: '🔢',
+    summary: '섞여 있는 숫자를 1부터 차례로 눌러요. 9칸·16칸·25칸, 걸린 시간을 재요.',
+    tags: ['집중력', '큰 글씨'],
+    group: 'brain',
+  },
+  {
+    slug: 'proverb',
+    name: '속담 완성 퀴즈',
+    icon: '📜',
+    summary: '"가는 말이 고와야 ___" 속담의 뒷부분을 골라요. 문제마다 속담 뜻도 알려 줘요.',
+    tags: ['퀴즈', '우리말'],
+    group: 'brain',
+  },
+  {
+    slug: 'color-word',
+    name: '글자 색 맞히기',
+    icon: '🎨',
+    summary: '"빨강"이라고 파란색으로 쓴 글자, 무슨 색일까요? 글자 말고 색을 고르는 집중력 게임.',
+    tags: ['집중력', '30초 게임'],
+    group: 'brain',
+  },
+  {
+    slug: 'gugudan',
+    name: '구구단 게임',
+    icon: '✖️',
+    summary: '단을 골라 10문제. 숫자판으로 답을 누르고, 틀린 문제는 끝나고 다시 보여 줘요.',
+    tags: ['어린이', '구구단'],
+    group: 'kids',
+    home: true,
+  },
+  {
+    slug: 'number-baseball',
+    name: '숫자 야구',
+    icon: '⚾',
+    summary: '컴퓨터가 정한 세 자리 숫자를 스트라이크·볼 힌트로 맞히는 추리 게임.',
+    tags: ['추리', '온 가족'],
+    group: 'kids',
+  },
+  {
     slug: 'omok',
     name: '오목',
     icon: '⚫',
@@ -85,7 +145,6 @@ export const miniGames: MiniGame[] = [
     summary: '매일 새 문제가 나오는 스도쿠. 난이도 세 가지, 메모 기능과 최고 기록 저장까지.',
     tags: ['퍼즐', '매일 새 문제'],
     group: 'solo',
-    home: true,
   },
   {
     slug: 'minesweeper',
@@ -94,7 +153,6 @@ export const miniGames: MiniGame[] = [
     summary: '숫자를 보고 지뢰를 피해 칸을 여는 퍼즐. 첫 칸은 항상 안전하고, 휴대폰은 깃발 모드로.',
     tags: ['퍼즐', '클래식'],
     group: 'solo',
-    home: true,
   },
   {
     slug: 'reaction',

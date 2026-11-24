@@ -1,0 +1,227 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '스트라이크와 볼이 뭔가요?',
+    a: '내가 고른 숫자가 정답에 있고 자리까지 맞으면 스트라이크, 숫자는 정답에 있지만 자리가 다르면 볼입니다. 하나도 없으면 아웃이에요.',
+  },
+  {
+    q: '0도 쓰나요? 같은 숫자를 두 번 써도 되나요?',
+    a: '이 게임은 1부터 9까지만 쓰고, 한 숫자는 한 번만 씁니다. 정답도 같은 규칙으로 만들어져요.',
+  },
+  {
+    q: '몇 번 만에 맞히면 잘한 건가요?',
+    a: '정해진 기준은 없어요. 처음에는 10번 가까이 걸려도 괜찮습니다. 아웃과 볼 힌트를 잘 쓰는 요령이 생기면 횟수가 눈에 띄게 줄어들어요. 네 자리는 세 자리보다 훨씬 어렵습니다.',
+  },
+  {
+    q: '가족끼리 대결하려면요?',
+    a: '같은 자릿수로 한 사람씩 번갈아 한 판씩 하고, 누가 더 적은 횟수로 맞혔는지 비교해 보세요.',
+  },
+];
+---
+
+<GameLayout
+  slug="number-baseball"
+  title="숫자 야구 게임 — 무료 숫자 추리 게임 (3자리·4자리)"
+  description="컴퓨터가 정한 숫자를 스트라이크·볼 힌트로 맞히는 무료 숫자 야구 게임. 3자리와 4자리, 큰 숫자판으로 아이와 함께 하기 좋은 추리 게임입니다."
+  heading="⚾ 숫자 야구"
+  lead="컴퓨터가 정한 숫자를 맞혀 보세요. 숫자를 넣을 때마다 스트라이크와 볼로 힌트를 줍니다."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="mg-btn" data-len="3">3자리</button>
+      <button type="button" class="mg-btn" data-len="4">4자리</button>
+      <span class="ml-auto text-sm text-muted dark:text-slate-400">최고 기록 <strong id="nb-best">-</strong></span>
+    </div>
+
+    <div class="mt-3 flex justify-center gap-2" id="nb-slots"></div>
+    <p
+      id="nb-status"
+      class="mt-3 min-h-[1.75rem] text-center text-lg font-bold text-heading dark:text-white"
+      aria-live="polite"
+    >
+    </p>
+    <div id="nb-pad" class="mx-auto mt-2 grid max-w-[420px] grid-cols-3 gap-2"></div>
+
+    <ol id="nb-log" class="mx-auto mt-4 grid max-w-[420px] gap-2"></ol>
+  </div>
+
+  <h2>게임 방법</h2>
+  <ol>
+    <li>컴퓨터가 1~9 중 서로 다른 숫자로 <strong>세 자리(또는 네 자리) 숫자</strong>를 몰래 정합니다.</li>
+    <li>숫자판으로 내가 생각한 숫자를 넣고 <strong>확인</strong>을 누르세요.</li>
+    <li>
+      숫자와 자리가 모두 맞으면 <strong>스트라이크(S)</strong>, 숫자는 있는데 자리가 다르면 <strong>볼(B)</strong>,
+      하나도 없으면 <strong>아웃</strong>입니다.
+    </li>
+    <li>모든 자리가 스트라이크가 되면 성공! 적은 횟수로 맞힐수록 잘한 거예요.</li>
+  </ol>
+
+  <h2>예시로 알아보기</h2>
+  <p>정답이 <strong>3 8 5</strong>라고 해 볼게요.</p>
+  <ul>
+    <li><strong>1 2 4</strong> → 아웃. 1, 2, 4는 정답에 하나도 없어요.</li>
+    <li><strong>3 5 7</strong> → 1S 1B. 3은 자리까지 맞고(스트라이크), 5는 있지만 자리가 달라요(볼).</li>
+    <li><strong>3 8 5</strong> → 3S. 정답!</li>
+  </ul>
+
+  <h2>추리 요령</h2>
+  <ul>
+    <li>
+      <strong>아웃도 큰 힌트.</strong> 아웃이 나오면 그 숫자 세 개는 통째로 지울 수 있어요. 첫 몇 번은 겹치지 않는 숫자로
+      넣어 보세요.
+    </li>
+    <li>
+      <strong>기록을 보며 지우기.</strong> 아래 기록을 보고 "이 숫자는 없다", "이 숫자는 이 자리가 아니다"를 하나씩 정리하면
+      답이 좁혀집니다.
+    </li>
+    <li><strong>볼은 자리 바꾸기.</strong> 볼이 나온 숫자는 다른 자리로 옮겨서 다시 넣어 보세요.</li>
+  </ul>
+</GameLayout>
+
+<script>
+  const KEY = 'zin-baseball-v1';
+  const $ = (id: string) => document.getElementById(id)!;
+  const slots = $('nb-slots');
+  const pad = $('nb-pad');
+  const statusEl = $('nb-status');
+  const log = $('nb-log');
+  const bestEl = $('nb-best');
+  const lenBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-len]')];
+
+  let len = 3;
+  let secret: number[] = [];
+  let guess: number[] = [];
+  let tries = 0;
+  let over = false;
+  let best: Record<string, number> = {};
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s) {
+      best = s.best || {};
+      if (s.len === 4) len = 4;
+    }
+  } catch {
+    /* 무시 */
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ best, len }));
+    } catch {
+      /* 무시 */
+    }
+  }
+
+  const digitBtns: HTMLButtonElement[] = [];
+  for (const k of ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '새 게임', '확인']) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mg-key';
+    b.textContent = k;
+    if (k === '확인') {
+      b.style.background = '#4f46e5';
+      b.style.color = '#fff';
+      b.style.borderColor = '#4f46e5';
+      b.style.fontSize = '1.3rem';
+    }
+    if (k === '새 게임') b.style.fontSize = '1.1rem';
+    b.addEventListener('click', () => key(k));
+    if (/^[1-9]$/.test(k)) digitBtns.push(b);
+    pad.appendChild(b);
+  }
+
+  function renderSlots() {
+    slots.innerHTML = '';
+    for (let i = 0; i < len; i++) {
+      const s = document.createElement('span');
+      s.className =
+        'flex h-16 w-14 items-center justify-center rounded-xl border-2 border-indigo-300 bg-white text-4xl font-black text-indigo-600 dark:bg-slate-800 dark:text-indigo-300';
+      s.textContent = guess[i] ? String(guess[i]) : '';
+      slots.appendChild(s);
+    }
+    digitBtns.forEach((b, i) => (b.disabled = over || guess.includes(i + 1)));
+  }
+
+  function newGame() {
+    const pool = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    secret = pool.slice(0, len);
+    guess = [];
+    tries = 0;
+    over = false;
+    log.innerHTML = '';
+    statusEl.textContent = `서로 다른 숫자 ${len}개를 넣고 확인을 누르세요.`;
+    lenBtns.forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.len) === len)));
+    bestEl.textContent = best[String(len)] ? `${len}자리 ${best[String(len)]}번` : '-';
+    renderSlots();
+    save();
+  }
+
+  function key(k: string) {
+    if (k === '새 게임') return newGame();
+    if (over) return;
+    if (k === '⌫') guess.pop();
+    else if (k === '확인') return submit();
+    else if (guess.length < len && !guess.includes(Number(k))) guess.push(Number(k));
+    renderSlots();
+  }
+
+  function submit() {
+    if (guess.length < len) {
+      statusEl.textContent = `숫자 ${len}개를 모두 넣어 주세요.`;
+      return;
+    }
+    tries++;
+    let s = 0,
+      b = 0;
+    guess.forEach((d, i) => {
+      if (secret[i] === d) s++;
+      else if (secret.includes(d)) b++;
+    });
+    const text = s === 0 && b === 0 ? '아웃' : [s ? `${s}S` : '', b ? `${b}B` : ''].filter(Boolean).join(' ');
+    const li = document.createElement('li');
+    li.className =
+      'flex items-center justify-between rounded-xl border border-gray-200 px-4 py-2 text-xl font-bold text-heading dark:border-slate-700 dark:text-white';
+    li.innerHTML = `<span class="text-sm font-medium text-muted">${tries}번째</span><span class="tracking-[0.3em]">${guess.join('')}</span><span>${text}</span>`;
+    const color = s === len ? '#16a34a' : s === 0 && b === 0 ? '#94a3b8' : '#d97706';
+    (li.lastElementChild as HTMLElement).style.color = color;
+    log.prepend(li);
+    guess = [];
+    if (s === len) {
+      over = true;
+      const k = String(len);
+      const record = !best[k] || tries < best[k];
+      if (record) {
+        best[k] = tries;
+        save();
+      }
+      bestEl.textContent = `${len}자리 ${best[k]}번`;
+      statusEl.textContent = `🎉 ${tries}번 만에 맞혔어요!${record ? ' 최고 기록!' : ''} 정답 ${secret.join('')}`;
+      if (navigator.vibrate) navigator.vibrate(80);
+    } else statusEl.textContent = `${text}! 다음 숫자를 넣어 보세요.`;
+    renderSlots();
+  }
+
+  lenBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      len = Number(b.dataset.len);
+      newGame();
+    })
+  );
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (/^[1-9]$/.test(e.key)) key(e.key);
+    else if (e.key === 'Backspace') key('⌫');
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      key('확인');
+    }
+  });
+  newGame();
+</script>

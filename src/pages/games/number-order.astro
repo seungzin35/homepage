@@ -1,0 +1,206 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '어떤 크기부터 하면 좋나요?',
+    a: '처음에는 9칸(1~9)으로 규칙을 익히고, 익숙해지면 16칸, 25칸으로 넘어가세요. 25칸은 숫자를 찾느라 눈을 많이 움직여야 해서 집중력이 꽤 필요합니다.',
+  },
+  {
+    q: '잘못 누르면 어떻게 되나요?',
+    a: '틀린 숫자를 누르면 그 칸이 잠깐 흔들리고, 시간은 계속 흐릅니다. 다시 맞는 숫자를 찾아 누르면 이어서 진행돼요.',
+  },
+  {
+    q: '기록은 어디에 남나요?',
+    a: '칸 수별 가장 빠른 기록이 지금 쓰는 브라우저에만 저장됩니다. 서버로 보내지 않아요.',
+  },
+];
+---
+
+<GameLayout
+  slug="number-order"
+  title="1부터 순서대로 누르기 — 무료 숫자 찾기 집중력 게임 (큰 글씨)"
+  description="섞여 있는 숫자를 1부터 순서대로 빨리 누르는 무료 숫자 찾기 게임. 9칸·16칸·25칸, 큰 글씨라 부모님도 쉽게 할 수 있는 집중력 두뇌 운동입니다."
+  heading="🔢 1부터 순서대로 누르기"
+  lead="뒤죽박죽 섞인 숫자를 1, 2, 3… 차례대로 눌러 보세요. 다 누르는 데 걸린 시간을 잽니다."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="mg-btn" data-n="3">9칸</button>
+      <button type="button" class="mg-btn" data-n="4">16칸</button>
+      <button type="button" class="mg-btn" data-n="5">25칸</button>
+      <span class="ml-auto text-lg font-bold text-heading dark:text-white">⏱ <span id="no-time">0.0</span>초</span>
+    </div>
+    <p id="no-status" class="mt-3 min-h-[2rem] text-xl font-bold text-heading dark:text-white" aria-live="polite"></p>
+    <div id="no-grid" class="mt-2 grid w-full max-w-[520px] gap-2"></div>
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      <button type="button" class="mg-btn mg-primary" id="no-new">🔄 다시 섞기</button>
+      <span id="no-best" class="ml-auto text-sm text-muted dark:text-slate-400"></span>
+    </div>
+  </div>
+
+  <h2>게임 방법</h2>
+  <ol>
+    <li>칸 수(9칸, 16칸, 25칸)를 고릅니다.</li>
+    <li><strong>1</strong>을 누르는 순간 시계가 움직이기 시작해요.</li>
+    <li>2, 3, 4… 순서대로 마지막 숫자까지 누르면 끝납니다.</li>
+    <li>다음에 찾을 숫자는 화면 위에 크게 보여 줍니다.</li>
+  </ol>
+
+  <h2>빨리 찾는 요령</h2>
+  <ul>
+    <li>
+      <strong>판 전체를 한눈에 보기.</strong> 숫자 하나하나를 읽기보다 가운데를 바라보고 넓게 보면 더 빨리 찾습니다.
+    </li>
+    <li>
+      <strong>다음 숫자를 미리 보기.</strong> 지금 숫자를 누르면서 눈은 벌써 다음 숫자를 찾고 있으면 시간이 확 줄어요.
+    </li>
+    <li><strong>매일 같은 칸 수로.</strong> 같은 크기로 꾸준히 해 보면 기록이 줄어드는 게 눈에 보입니다.</li>
+  </ul>
+</GameLayout>
+
+<style is:global>
+  #no-grid button {
+    aspect-ratio: 1;
+    font-size: clamp(1.4rem, 8vw, 2.4rem);
+  }
+  #no-grid button.hit {
+    background: #e0e7ff;
+    color: #a5b4fc;
+    border-color: #e0e7ff;
+  }
+  .dark #no-grid button.hit {
+    background: #1e1b4b;
+    color: #4338ca;
+    border-color: #1e1b4b;
+  }
+  #no-grid button.miss {
+    animation: no-shake 0.3s;
+    border-color: #ef4444;
+  }
+  @keyframes no-shake {
+    25% {
+      transform: translateX(-5px);
+    }
+    75% {
+      transform: translateX(5px);
+    }
+  }
+</style>
+
+<script>
+  const KEY = 'zin-number-order-v1';
+  const $ = (id: string) => document.getElementById(id)!;
+  const grid = $('no-grid');
+  const timeEl = $('no-time');
+  const statusEl = $('no-status');
+  const bestEl = $('no-best');
+  const sizeBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-n]')];
+
+  let n = 3;
+  let next = 1;
+  let t0 = 0;
+  let raf = 0;
+  let best: Record<string, number> = {};
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s) {
+      best = s.best || {};
+      if ([3, 4, 5].includes(s.n)) n = s.n;
+    }
+  } catch {
+    /* 무시 */
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ best, n }));
+    } catch {
+      /* 무시 */
+    }
+  }
+  function showBest() {
+    const b = best[String(n)];
+    bestEl.textContent = b ? `${n * n}칸 최고 기록 ${b.toFixed(1)}초` : '';
+  }
+
+  function newGame() {
+    cancelAnimationFrame(raf);
+    next = 1;
+    t0 = 0;
+    timeEl.textContent = '0.0';
+    statusEl.textContent = '1부터 누르세요';
+    sizeBtns.forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.n) === n)));
+    const nums = Array.from({ length: n * n }, (_, i) => i + 1);
+    for (let i = nums.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+    grid.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+    grid.innerHTML = '';
+    for (const v of nums) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'mg-key';
+      b.textContent = String(v);
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        press(v, b);
+      });
+      b.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          press(v, b);
+        }
+      });
+      grid.appendChild(b);
+    }
+    showBest();
+    save();
+  }
+
+  function tick() {
+    timeEl.textContent = ((performance.now() - t0) / 1000).toFixed(1);
+    raf = requestAnimationFrame(tick);
+  }
+
+  function press(v: number, b: HTMLButtonElement) {
+    if (next > n * n || b.classList.contains('hit')) return;
+    if (v !== next) {
+      b.classList.remove('miss');
+      void b.offsetWidth;
+      b.classList.add('miss');
+      setTimeout(() => b.classList.remove('miss'), 350);
+      return;
+    }
+    if (v === 1) {
+      t0 = performance.now();
+      tick();
+    }
+    b.classList.add('hit');
+    next++;
+    if (next > n * n) {
+      cancelAnimationFrame(raf);
+      const sec = Math.round((performance.now() - t0) / 100) / 10;
+      timeEl.textContent = sec.toFixed(1);
+      const k = String(n);
+      const record = !best[k] || sec < best[k];
+      if (record) {
+        best[k] = sec;
+        save();
+      }
+      statusEl.textContent = `🎉 ${sec.toFixed(1)}초 만에 끝!${record ? ' 최고 기록이에요!' : ''}`;
+      showBest();
+      if (navigator.vibrate) navigator.vibrate(60);
+    } else statusEl.textContent = `다음 숫자: ${next}`;
+  }
+
+  sizeBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      n = Number(b.dataset.n);
+      newGame();
+    })
+  );
+  $('no-new').addEventListener('click', newGame);
+  newGame();
+</script>

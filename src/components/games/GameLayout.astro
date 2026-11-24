@@ -146,6 +146,31 @@ const schema = [
     color: #0f172a;
     font-size: 1rem;
   }
+  /* 어르신·어린이용 큰 버튼 */
+  .mg-key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.5rem;
+    border-radius: 0.9rem;
+    border: 2px solid rgb(203 213 225);
+    background: #fff;
+    color: #0f172a;
+    font-size: 1.6rem;
+    font-weight: 800;
+    touch-action: manipulation;
+  }
+  .mg-key:active {
+    transform: scale(0.97);
+  }
+  .mg-key:disabled {
+    opacity: 0.35;
+  }
+  .dark .mg-key {
+    background: rgb(30 41 59);
+    border-color: rgb(71 85 105);
+    color: #f1f5f9;
+  }
   .dark .mg-btn,
   .dark .mg-input {
     background: rgb(30 41 59);

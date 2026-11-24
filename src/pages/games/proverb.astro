@@ -1,0 +1,195 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+import { proverbs } from '~/data/proverbs';
+
+const faqs = [
+  {
+    q: '문제는 몇 개인가요?',
+    a: `지금은 속담 ${proverbs.length}개가 들어 있고, 한 판에 10문제씩 무작위로 나옵니다. 보기 순서도 매번 바뀌어요.`,
+  },
+  {
+    q: '틀리면 어떻게 되나요?',
+    a: '틀려도 바로 정답과 속담의 뜻을 보여 줍니다. 한 판이 끝나면 틀린 속담만 모아서 다시 보여 줘요.',
+  },
+  {
+    q: '아이와 함께 해도 되나요?',
+    a: '네. 문제마다 뜻풀이가 붙어 있어서, 아이에게 속담을 알려 주는 용도로 쓰기 좋습니다. 어른이 문제를 읽어 주고 아이가 고르게 해 보세요.',
+  },
+];
+---
+
+<GameLayout
+  slug="proverb"
+  title="속담 퀴즈 — 속담 완성하기 무료 퀴즈 (뜻풀이 포함)"
+  description={`"가는 말이 고와야 ___" 속담의 뒷부분을 고르는 무료 속담 퀴즈. 한 판 10문제, 문제마다 속담 뜻을 알려 줍니다. 큰 글씨라 부모님, 아이와 함께 하기 좋아요.`}
+  heading="📜 속담 완성 퀴즈"
+  lead="속담의 앞부분을 보고, 알맞은 뒷부분을 골라 보세요. 한 판에 10문제입니다."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="flex items-center text-lg font-bold text-heading dark:text-white">
+      <span id="pv-count">1 / 10</span>
+      <span class="ml-auto">⭕ <span id="pv-score">0</span></span>
+    </div>
+    <div
+      class="mt-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-6 text-center dark:border-amber-700 dark:bg-slate-900"
+    >
+      <p id="pv-q" class="text-2xl font-black leading-snug text-heading md:text-3xl dark:text-white"></p>
+    </div>
+    <div id="pv-choices" class="mt-4 grid gap-3"></div>
+    <div id="pv-feedback" class="mt-4 min-h-[4rem] text-lg text-heading dark:text-white" aria-live="polite"></div>
+    <div class="mt-2 flex gap-2">
+      <button type="button" class="mg-btn mg-primary hidden" id="pv-next">다음 문제 ➜</button>
+      <button type="button" class="mg-btn hidden" id="pv-again">🔄 새 퀴즈</button>
+    </div>
+    <div id="pv-review" class="mt-4"></div>
+  </div>
+
+  <h2>퀴즈 방법</h2>
+  <ol>
+    <li>화면 위에 속담의 <strong>앞부분</strong>이 나옵니다.</li>
+    <li>아래 보기 4개 중에서 알맞은 <strong>뒷부분</strong>을 누르세요.</li>
+    <li>맞히든 틀리든 속담의 <strong>뜻</strong>을 바로 알려 줍니다.</li>
+    <li>10문제가 끝나면 점수와 틀린 속담을 다시 보여 줘요.</li>
+  </ol>
+
+  <h2>이 퀴즈에 나오는 속담 몇 가지</h2>
+  <ul>
+    {
+      proverbs.slice(0, 8).map((p) => (
+        <li>
+          <strong>
+            {p.head} {p.tail}
+          </strong>
+          : {p.meaning}
+        </li>
+      ))
+    }
+  </ul>
+  <p>나머지 속담은 퀴즈를 풀면서 만나 보세요.</p>
+</GameLayout>
+
+<script>
+  import { proverbs, type Proverb } from '~/data/proverbs';
+
+  const ROUND = 10;
+  const $ = (id: string) => document.getElementById(id)!;
+  const qEl = $('pv-q');
+  const choicesEl = $('pv-choices');
+  const fb = $('pv-feedback');
+  const countEl = $('pv-count');
+  const scoreEl = $('pv-score');
+  const nextBtn = $('pv-next');
+  const againBtn = $('pv-again');
+  const review = $('pv-review');
+
+  let list: Proverb[] = [];
+  let idx = 0;
+  let score = 0;
+  let wrong: Proverb[] = [];
+
+  function shuffle<T>(a: T[]) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function start() {
+    list = shuffle([...proverbs]).slice(0, ROUND);
+    idx = 0;
+    score = 0;
+    wrong = [];
+    review.innerHTML = '';
+    againBtn.classList.add('hidden');
+    show();
+  }
+
+  function show() {
+    const p = list[idx];
+    countEl.textContent = `${idx + 1} / ${ROUND}`;
+    scoreEl.textContent = String(score);
+    qEl.textContent = `${p.head} ___`;
+    fb.textContent = '';
+    nextBtn.classList.add('hidden');
+    const others = shuffle(proverbs.filter((x) => x.tail !== p.tail)).slice(0, 3);
+    const opts = shuffle([p.tail, ...others.map((o) => o.tail)]);
+    choicesEl.innerHTML = '';
+    for (const o of opts) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'mg-key';
+      b.style.fontSize = '1.35rem';
+      b.textContent = o;
+      b.addEventListener('click', () => answer(b, o === p.tail));
+      choicesEl.appendChild(b);
+    }
+  }
+
+  function answer(b: HTMLButtonElement, ok: boolean) {
+    const p = list[idx];
+    const btns = [...choicesEl.querySelectorAll('button')];
+    btns.forEach((x) => {
+      x.disabled = true;
+      if (x.textContent === p.tail) {
+        x.style.background = '#dcfce7';
+        x.style.borderColor = '#22c55e';
+        x.style.color = '#14532d';
+        x.style.opacity = '1';
+      }
+    });
+    if (ok) {
+      score++;
+      scoreEl.textContent = String(score);
+    } else {
+      b.style.background = '#fee2e2';
+      b.style.borderColor = '#ef4444';
+      b.style.color = '#7f1d1d';
+      b.style.opacity = '1';
+      wrong.push(p);
+    }
+    qEl.textContent = `${p.head} ${p.tail}`;
+    fb.innerHTML = `<strong>${ok ? '⭕ 정답!' : '❌ 아쉬워요.'}</strong> <span></span>`;
+    fb.querySelector('span')!.textContent = `뜻: ${p.meaning}`;
+    if (idx < ROUND - 1) nextBtn.classList.remove('hidden');
+    else finish();
+  }
+
+  function finish() {
+    const msg =
+      score === ROUND
+        ? '🏆 만점! 속담 박사예요.'
+        : score >= 7
+          ? '👏 아주 잘했어요!'
+          : score >= 4
+            ? '😊 좋아요!'
+            : '💪 다음엔 더 잘할 거예요!';
+    const p = document.createElement('p');
+    p.className = 'mt-2 text-2xl font-black';
+    p.textContent = `${ROUND}문제 중 ${score}개 맞혔어요. ${msg}`;
+    fb.appendChild(p);
+    if (wrong.length) {
+      review.innerHTML = '<p class="font-bold text-heading dark:text-white">다시 보기: 틀린 속담</p>';
+      const ul = document.createElement('ul');
+      ul.className = 'mt-2 grid gap-2';
+      for (const w of wrong) {
+        const li = document.createElement('li');
+        li.className = 'rounded-xl border border-gray-200 p-3 dark:border-slate-700';
+        li.innerHTML = '<strong></strong><br /><span class="text-muted"></span>';
+        li.querySelector('strong')!.textContent = `${w.head} ${w.tail}`;
+        li.querySelector('span')!.textContent = w.meaning;
+        ul.appendChild(li);
+      }
+      review.appendChild(ul);
+    }
+    againBtn.classList.remove('hidden');
+  }
+
+  nextBtn.addEventListener('click', () => {
+    idx++;
+    show();
+  });
+  againBtn.addEventListener('click', start);
+  start();
+</script>

@@ -1,0 +1,212 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '왜 이렇게 헷갈리나요?',
+    a: '글자를 읽는 일은 너무 익숙해서 저절로 됩니다. 그래서 "빨강"이라는 글자가 파란색으로 쓰여 있으면, 색을 말하려 해도 읽은 글자가 먼저 떠올라 헷갈려요. 심리학에서는 이를 스트룹 효과라고 부릅니다.',
+  },
+  {
+    q: '쉬움과 보통은 무엇이 다른가요?',
+    a: '쉬움은 글자와 색이 같은 문제가 절반쯤 섞여 나옵니다. 보통은 글자와 색이 항상 달라서 훨씬 헷갈려요. 처음에는 쉬움으로 시작해 보세요.',
+  },
+  {
+    q: '점수는 어떻게 매기나요?',
+    a: '30초 동안 맞힌 개수가 점수입니다. 틀리면 1초가 줄어들어요. 난이도별 최고 점수는 지금 쓰는 브라우저에만 저장됩니다.',
+  },
+];
+---
+
+<GameLayout
+  slug="color-word"
+  title="글자 색 맞히기 — 무료 집중력 게임 (스트룹 테스트)"
+  description={`"빨강"이라고 파란색으로 쓴 글자, 무슨 색일까요? 글자를 읽지 말고 색을 고르는 무료 30초 집중력 게임. 큰 버튼이라 부모님도 쉽게 할 수 있어요.`}
+  heading="🎨 글자 색 맞히기"
+  lead="글자를 읽지 말고, 글자가 칠해진 색을 고르세요. 30초 동안 몇 개나 맞힐 수 있을까요?"
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="mg-btn" data-level="easy">쉬움</button>
+      <button type="button" class="mg-btn" data-level="normal">보통</button>
+      <span class="ml-auto text-lg font-bold text-heading dark:text-white"
+        >⏱ <span id="cw-time">30</span>초 · ⭕ <span id="cw-score">0</span></span
+      >
+    </div>
+    <div
+      id="cw-stage"
+      class="mt-3 flex h-44 items-center justify-center rounded-2xl border-2 border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-100"
+    >
+      <span id="cw-word" class="text-6xl font-black md:text-7xl">시작</span>
+    </div>
+    <p
+      id="cw-status"
+      class="mt-3 min-h-[1.75rem] text-center text-lg font-semibold text-heading dark:text-white"
+      aria-live="polite"
+    >
+      아래 색 버튼 중 아무거나 누르면 시작해요.
+    </p>
+    <div id="cw-btns" class="mt-2 grid grid-cols-2 gap-3"></div>
+    <p class="mt-3 text-right text-sm text-muted dark:text-slate-400">최고 점수 <strong id="cw-best">-</strong></p>
+  </div>
+
+  <h2>게임 방법</h2>
+  <ol>
+    <li>화면 가운데에 색 이름이 나옵니다. 그런데 글자가 다른 색으로 칠해져 있어요.</li>
+    <li><strong>글자를 읽지 말고, 칠해진 색</strong>에 맞는 버튼을 누르세요.</li>
+    <li>
+      예를 들어 <span style="color:#2563eb;font-weight:800">빨강</span>이라고 파란색으로 쓰여 있으면 <strong
+        >파랑</strong
+      >이 정답입니다.
+    </li>
+    <li>30초 동안 맞힌 개수가 점수예요. 틀리면 1초가 줄어듭니다.</li>
+  </ol>
+
+  <h2>잘하는 요령</h2>
+  <ul>
+    <li><strong>글자를 흐리게 보기.</strong> 글자에 초점을 맞추지 말고 색의 덩어리를 본다는 느낌으로 보세요.</li>
+    <li><strong>버튼 자리를 외우기.</strong> 버튼 위치가 항상 같으니, 손이 먼저 가도록 익혀 두면 빨라집니다.</li>
+    <li><strong>서두르지 않기.</strong> 틀리면 시간이 줄어드니, 빠르게 찍기보다 정확하게 누르는 쪽이 점수가 높아요.</li>
+  </ul>
+</GameLayout>
+
+<script>
+  const COLORS = [
+    { name: '빨강', hex: '#dc2626' },
+    { name: '파랑', hex: '#2563eb' },
+    { name: '초록', hex: '#16a34a' },
+    { name: '노랑', hex: '#d4a106' },
+  ];
+  const KEY = 'zin-color-word-v1';
+  const ROUND = 30;
+  const $ = (id: string) => document.getElementById(id)!;
+  const wordEl = $('cw-word');
+  const timeEl = $('cw-time');
+  const scoreEl = $('cw-score');
+  const statusEl = $('cw-status');
+  const bestEl = $('cw-best');
+  const btnBox = $('cw-btns');
+  const levelBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-level]')];
+
+  type Level = 'easy' | 'normal';
+  let level: Level = 'easy';
+  let best: Record<string, number> = {};
+  let playing = false;
+  let score = 0;
+  let endAt = 0;
+  let answer = 0;
+  let raf = 0;
+  let lastWord = -1;
+
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s) {
+      best = s.best || {};
+      if (s.level === 'normal') level = 'normal';
+    }
+  } catch {
+    /* 무시 */
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ best, level }));
+    } catch {
+      /* 무시 */
+    }
+  }
+  function showBest() {
+    bestEl.textContent = best[level] ? `${best[level]}개` : '-';
+    levelBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.level === level)));
+  }
+
+  COLORS.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mg-key';
+    b.innerHTML = `<span style="display:inline-block;width:1.4rem;height:1.4rem;border-radius:9999px;background:${c.hex};margin-right:.5rem"></span>${c.name}`;
+    b.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      pick(i);
+    });
+    b.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        pick(i);
+      }
+    });
+    btnBox.appendChild(b);
+  });
+
+  function nextQ() {
+    let w = Math.floor(Math.random() * COLORS.length);
+    if (w === lastWord) w = (w + 1 + Math.floor(Math.random() * 3)) % COLORS.length;
+    lastWord = w;
+    let c = w;
+    const same = level === 'easy' && Math.random() < 0.5;
+    if (!same) c = (w + 1 + Math.floor(Math.random() * (COLORS.length - 1))) % COLORS.length;
+    answer = c;
+    wordEl.textContent = COLORS[w].name;
+    wordEl.style.color = COLORS[c].hex;
+  }
+
+  function tick() {
+    const left = Math.max(0, endAt - performance.now());
+    timeEl.textContent = String(Math.ceil(left / 1000));
+    if (left <= 0) return finish();
+    raf = requestAnimationFrame(tick);
+  }
+
+  function start() {
+    playing = true;
+    score = 0;
+    scoreEl.textContent = '0';
+    endAt = performance.now() + ROUND * 1000;
+    statusEl.textContent = '글자 말고 색!';
+    nextQ();
+    tick();
+  }
+
+  function pick(i: number) {
+    if (!playing) {
+      if (performance.now() < endAt + 800) return; // 끝난 직후 실수로 다시 시작하지 않도록
+      return start();
+    }
+    if (i === answer) {
+      score++;
+      scoreEl.textContent = String(score);
+      statusEl.textContent = '⭕';
+    } else {
+      endAt -= 1000;
+      statusEl.textContent = `❌ ${COLORS[answer].name}이었어요 (-1초)`;
+      if (navigator.vibrate) navigator.vibrate(80);
+    }
+    nextQ();
+  }
+
+  function finish() {
+    cancelAnimationFrame(raf);
+    playing = false;
+    endAt = performance.now();
+    timeEl.textContent = '0';
+    wordEl.textContent = `${score}개`;
+    wordEl.style.color = '#4f46e5';
+    const record = !best[level] || score > best[level];
+    if (record && score > 0) {
+      best[level] = score;
+      save();
+    }
+    statusEl.textContent = `끝! ${score}개 맞혔어요.${record && score > 0 ? ' 🎉 최고 점수!' : ''} 버튼을 누르면 다시 시작해요.`;
+    showBest();
+  }
+
+  levelBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      if (playing) return;
+      level = b.dataset.level as Level;
+      save();
+      showBest();
+    })
+  );
+  endAt = -10000;
+  showBest();
+</script>

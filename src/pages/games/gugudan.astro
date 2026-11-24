@@ -1,0 +1,274 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '몇 단부터 시작하면 좋나요?',
+    a: '보통 2단과 5단이 가장 쉽고, 그다음 3단·4단, 마지막으로 6단부터 9단을 익힙니다. 한 단을 10문제 다 맞히면 다음 단으로 넘어가 보세요.',
+  },
+  {
+    q: '"섞어서"는 무엇인가요?',
+    a: '2단부터 9단까지 문제가 무작위로 섞여 나옵니다. 구구단을 다 외운 뒤 복습할 때 좋아요.',
+  },
+  {
+    q: '틀린 문제는 어떻게 다시 보나요?',
+    a: '10문제가 끝나면 틀린 문제와 정답을 모아서 보여 줍니다. "틀린 문제만 다시"를 누르면 그 문제들만 다시 풀 수 있어요.',
+  },
+  {
+    q: '기록이 저장되나요?',
+    a: '단마다 10문제를 모두 맞힌 가장 빠른 시간이 지금 쓰는 브라우저에 저장됩니다. 서버로 보내지 않아요.',
+  },
+];
+---
+
+<GameLayout
+  slug="gugudan"
+  title="구구단 게임 — 무료 구구단 외우기 연습 (2단~9단)"
+  description="단을 골라 10문제씩 푸는 무료 구구단 게임. 큰 숫자판으로 답을 누르고, 틀린 문제는 끝나고 다시 풀 수 있어요. 아이 구구단 외우기 연습에 좋습니다."
+  heading="✖️ 구구단 게임"
+  lead="단을 고르고 10문제에 도전하세요. 숫자판으로 답을 누르고 확인을 누르면 됩니다."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div id="gg-dans" class="flex flex-wrap gap-2"></div>
+
+    <div id="gg-play" class="mt-4">
+      <div class="flex items-center text-lg font-bold text-heading dark:text-white">
+        <span id="gg-count">1 / 10</span>
+        <span class="ml-auto">⭕ <span id="gg-score">0</span></span>
+      </div>
+      <div
+        class="mt-2 rounded-2xl border-2 border-sky-300 bg-sky-50 p-5 text-center dark:border-sky-700 dark:bg-slate-900"
+      >
+        <p class="text-5xl font-black text-heading md:text-6xl dark:text-white">
+          <span id="gg-q">2 × 3</span> = <span
+            id="gg-a"
+            class="inline-block min-w-[2ch] text-indigo-600 dark:text-indigo-300">?</span
+          >
+        </p>
+        <p id="gg-fb" class="mt-2 min-h-[1.75rem] text-xl font-bold" aria-live="polite"></p>
+      </div>
+      <div id="gg-pad" class="mx-auto mt-3 grid max-w-[420px] grid-cols-3 gap-2"></div>
+    </div>
+
+    <div id="gg-result" class="mt-4 hidden"></div>
+  </div>
+
+  <h2>게임 방법</h2>
+  <ol>
+    <li>위에서 <strong>단</strong>(2단~9단 또는 섞어서)을 고릅니다.</li>
+    <li>
+      문제를 보고 아래 <strong>숫자판</strong>으로 답을 누른 뒤 <strong>확인</strong>을 누릅니다. 키보드 숫자와 엔터도
+      돼요.
+    </li>
+    <li>10문제가 끝나면 점수와 틀린 문제를 보여 줍니다.</li>
+  </ol>
+
+  <h2>구구단 쉽게 외우는 방법</h2>
+  <ul>
+    <li>
+      <strong>순서를 바꿔도 답은 같아요.</strong> 3×7과 7×3은 둘 다 21입니다. 하나를 알면 짝꿍도 아는 셈이라, 외울 양이 절반으로
+      줄어요.
+    </li>
+    <li><strong>5단은 끝자리가 0 아니면 5.</strong> 5, 10, 15, 20… 끝자리만 봐도 맞는지 알 수 있어요.</li>
+    <li>
+      <strong>9단은 손가락으로.</strong> 열 손가락을 펴고 9×3이면 왼쪽에서 셋째 손가락을 접으세요. 접은 손가락 왼쪽이 2개,
+      오른쪽이 7개라 답은 27입니다.
+    </li>
+    <li>
+      <strong>하루 한 단씩.</strong> 한 단을 10문제 다 맞힐 때까지 하고, 다음 날 다음 단으로 넘어가면 부담이 적어요.
+    </li>
+  </ul>
+</GameLayout>
+
+<script>
+  const KEY = 'zin-gugudan-v1';
+  const ROUND = 10;
+  const $ = (id: string) => document.getElementById(id)!;
+  const dansBox = $('gg-dans');
+  const pad = $('gg-pad');
+  const qEl = $('gg-q');
+  const aEl = $('gg-a');
+  const fb = $('gg-fb');
+  const countEl = $('gg-count');
+  const scoreEl = $('gg-score');
+  const play = $('gg-play');
+  const result = $('gg-result');
+
+  type Q = { a: number; b: number };
+  let dan = 2; // 0 = 섞어서
+  let qs: Q[] = [];
+  let idx = 0;
+  let score = 0;
+  let wrong: Q[] = [];
+  let input = '';
+  let busy = false;
+  let t0 = 0;
+  let best: Record<string, number> = {};
+  try {
+    best = JSON.parse(localStorage.getItem(KEY) || '{}') || {};
+  } catch {
+    /* 무시 */
+  }
+
+  const danBtns: HTMLButtonElement[] = [];
+  for (const d of [2, 3, 4, 5, 6, 7, 8, 9, 0]) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mg-btn';
+    b.textContent = d ? `${d}단` : '🔀 섞어서';
+    b.addEventListener('click', () => {
+      dan = d;
+      start();
+    });
+    danBtns.push(b);
+    dansBox.appendChild(b);
+  }
+
+  for (const k of ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '확인']) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mg-key';
+    if (k === '확인') b.classList.add('mg-ok');
+    b.textContent = k;
+    b.addEventListener('click', () => key(k));
+    pad.appendChild(b);
+  }
+  const okBtn = pad.querySelector<HTMLButtonElement>('.mg-ok')!;
+  okBtn.style.background = '#4f46e5';
+  okBtn.style.color = '#fff';
+  okBtn.style.borderColor = '#4f46e5';
+  okBtn.style.fontSize = '1.3rem';
+
+  function makeQs(list?: Q[]) {
+    if (list) return list.map((q) => ({ ...q }));
+    const pool: Q[] = [];
+    if (dan) for (let b = 1; b <= 9; b++) pool.push({ a: dan, b });
+    else for (let a = 2; a <= 9; a++) for (let b = 1; b <= 9; b++) pool.push({ a, b });
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const out = pool.slice(0, ROUND);
+    while (out.length < ROUND) out.push(pool[Math.floor(Math.random() * pool.length)]); // 한 단은 9문제뿐이라 하나 더
+    return out;
+  }
+
+  function start(list?: Q[]) {
+    danBtns.forEach((b, i) => b.setAttribute('aria-pressed', String([2, 3, 4, 5, 6, 7, 8, 9, 0][i] === dan)));
+    qs = makeQs(list);
+    idx = 0;
+    score = 0;
+    wrong = [];
+    t0 = performance.now();
+    play.classList.remove('hidden');
+    result.classList.add('hidden');
+    show();
+  }
+
+  function show() {
+    const q = qs[idx];
+    input = '';
+    busy = false;
+    qEl.textContent = `${q.a} × ${q.b}`;
+    aEl.textContent = '?';
+    fb.textContent = '';
+    countEl.textContent = `${idx + 1} / ${qs.length}`;
+    scoreEl.textContent = String(score);
+  }
+
+  function key(k: string) {
+    if (busy) return;
+    if (k === '⌫') input = input.slice(0, -1);
+    else if (k === '확인') return check();
+    else if (input.length < 2) input += k;
+    aEl.textContent = input || '?';
+  }
+
+  function check() {
+    if (!input) return;
+    busy = true;
+    const q = qs[idx];
+    const ok = Number(input) === q.a * q.b;
+    if (ok) {
+      score++;
+      scoreEl.textContent = String(score);
+      fb.textContent = '⭕ 정답!';
+      fb.style.color = '#16a34a';
+    } else {
+      wrong.push(q);
+      fb.textContent = `❌ 정답은 ${q.a * q.b}`;
+      fb.style.color = '#dc2626';
+      if (navigator.vibrate) navigator.vibrate(80);
+    }
+    setTimeout(
+      () => {
+        idx++;
+        if (idx < qs.length) show();
+        else finish();
+      },
+      ok ? 600 : 1500
+    );
+  }
+
+  function finish() {
+    const sec = Math.round((performance.now() - t0) / 1000);
+    play.classList.add('hidden');
+    result.classList.remove('hidden');
+    const k = String(dan);
+    let extra = '';
+    if (score === qs.length && qs.length === ROUND) {
+      if (!best[k] || sec < best[k]) {
+        best[k] = sec;
+        extra = ' 🎉 최고 기록!';
+        try {
+          localStorage.setItem(KEY, JSON.stringify(best));
+        } catch {
+          /* 무시 */
+        }
+      }
+    }
+    const name = dan ? `${dan}단` : '섞어서';
+    const msg =
+      score === qs.length ? '🏆 다 맞혔어요!' : score >= qs.length * 0.7 ? '👏 잘했어요!' : '💪 조금만 더 연습해 봐요!';
+    result.innerHTML = `
+      <div class="rounded-2xl border-2 border-indigo-300 p-5 text-center dark:border-indigo-700">
+        <p class="text-3xl font-black text-heading dark:text-white">${qs.length}문제 중 ${score}개</p>
+        <p class="mt-2 text-xl text-heading dark:text-white">${msg} (${sec}초)${extra}</p>
+        ${best[k] ? `<p class="mt-1 text-sm text-muted">${name} 만점 최고 기록 ${best[k]}초</p>` : ''}
+      </div>
+      ${
+        wrong.length
+          ? `<p class="mt-4 font-bold text-heading dark:text-white">틀린 문제</p>
+             <ul class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">${wrong
+               .map(
+                 (q) =>
+                   `<li class="rounded-xl border border-gray-200 p-3 text-xl font-bold dark:border-slate-700 dark:text-white">${q.a} × ${q.b} = ${q.a * q.b}</li>`
+               )
+               .join('')}</ul>`
+          : ''
+      }
+      <div class="mt-4 flex flex-wrap gap-2">
+        ${wrong.length ? '<button type="button" class="mg-btn mg-primary" id="gg-retry">틀린 문제만 다시</button>' : ''}
+        <button type="button" class="mg-btn" id="gg-again">🔄 ${name} 다시</button>
+      </div>`;
+    const retry = document.getElementById('gg-retry');
+    const wr = wrong;
+    if (retry) retry.addEventListener('click', () => start(wr));
+    document.getElementById('gg-again')!.addEventListener('click', () => start());
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (play.classList.contains('hidden')) return;
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (/^[0-9]$/.test(e.key)) key(e.key);
+    else if (e.key === 'Backspace') key('⌫');
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      key('확인');
+    }
+  });
+
+  start();
+</script>
