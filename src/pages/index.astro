@@ -10,6 +10,7 @@ import { SITE, METADATA, I18N } from 'astrowind:config';
 import { categories, gameCategories } from '~/navigation';
 import { getBlogPermalink, getPermalink } from '~/utils/permalinks';
 import { fetchPosts } from '~/utils/blog';
+import { miniGames } from '~/data/minigames';
 import favIconSvg from '~/assets/favicons/favicon.svg';
 
 const allPosts = await fetchPosts();
@@ -103,6 +104,37 @@ const structuredData = [
               <span class="text-xs font-medium text-muted dark:text-slate-400">글 {countByCategory(text)}개</span>
             </p>
             <p class="mt-1 text-sm text-muted dark:text-slate-400">{description}</p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- 미니게임 -->
+  <section class="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-12">
+    <div class="mb-6 flex items-end justify-between">
+      <div>
+        <h2 class="font-heading text-2xl font-bold text-heading dark:text-white">미니게임</h2>
+        <p class="mt-1 text-sm text-muted dark:text-slate-400">설치 없이 바로 하는 무료 게임, 휴대폰에서도 돼요</p>
+      </div>
+      <a href={getPermalink('/games')} class="text-sm font-medium text-muted hover:text-primary dark:text-slate-400">
+        전체 보기 →
+      </a>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3">
+      {
+        miniGames.map((g) => (
+          <a
+            href={getPermalink(`/games/${g.slug}`)}
+            class="flex items-start gap-3 rounded-2xl border border-gray-200 p-5 transition hover:border-primary dark:border-slate-800 dark:hover:border-indigo-400"
+          >
+            <span class="text-3xl" aria-hidden="true">
+              {g.icon}
+            </span>
+            <span>
+              <span class="block font-bold text-heading dark:text-white">{g.name}</span>
+              <span class="mt-1 block text-sm text-muted dark:text-slate-400">{g.summary}</span>
+            </span>
           </a>
         ))
       }
