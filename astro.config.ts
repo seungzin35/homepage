@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -19,6 +20,29 @@ import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin } from './src/uti
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// 사이트맵 lastmod: 글은 frontmatter의 updateDate(없으면 publishDate)를 쓴다.
+// 홈·글 목록·카테고리 페이지는 가장 최근 글 날짜. 날짜를 정확히 알 수 없는 페이지에는 넣지 않는다
+// (부정확한 lastmod는 구글이 무시하게 되므로).
+const postDates = (() => {
+  const dir = path.resolve(__dirname, 'src/data/post');
+  const map = new Map<string, Date>();
+  for (const file of fs.readdirSync(dir)) {
+    if (!/\.mdx?$/.test(file)) continue;
+    const fm = fs.readFileSync(path.join(dir, file), 'utf8').split(/^---\s*$/m)[1] ?? '';
+    const pick = (key: string) => fm.match(new RegExp(`^${key}:\\s*['"]?([^'"\\n]+)`, 'm'))?.[1];
+    const raw = pick('updateDate') ?? pick('publishDate');
+    const d = raw ? new Date(raw) : undefined;
+    if (d && !isNaN(d.getTime())) map.set(file.replace(/\.mdx?$/, ''), d);
+  }
+  return map;
+})();
+const latestPostDate = () => {
+  const now = Date.now();
+  let max = 0;
+  for (const d of postDates.values()) if (d.getTime() <= now && d.getTime() > max) max = d.getTime();
+  return max ? new Date(max) : undefined;
+};
+
 const hasExternalScripts = false;
 const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroIntegration)[] = []) =>
   hasExternalScripts ? (Array.isArray(items) ? items.map((item) => item()) : [items()]) : [];
@@ -38,6 +62,13 @@ export default defineConfig({
     // sitemap only lists pages we want in search results.
     sitemap({
       filter: (page) => !/\/tag\//.test(page) && !/\/blog\/\d+\/?$/.test(page),
+      serialize(item) {
+        const p = new URL(item.url).pathname.replace(/\/+$/, '');
+        const post = postDates.get(p.slice(1));
+        const d = post ?? (p === '' || p === '/blog' || p.startsWith('/category/') ? latestPostDate() : undefined);
+        if (d) item.lastmod = d.toISOString();
+        return item;
+      },
     }),
     mdx(),
     icon({
