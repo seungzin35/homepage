@@ -1,0 +1,288 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '어떤 항목이 나올지 미리 정해져 있나요?',
+    a: '아니요. 돌릴 때마다 브라우저의 난수로 당첨 칸을 고르고, 그 칸에 멈추도록 돌림판을 돌립니다. 모든 칸이 같은 확률이에요.',
+  },
+  {
+    q: '특정 항목이 더 잘 나오게 할 수 있나요?',
+    a: '같은 항목을 여러 줄 적으면 그만큼 칸이 늘어나 더 자주 나옵니다. 예를 들어 "통과"를 세 줄 적으면 "통과" 칸이 세 개가 돼요.',
+  },
+  {
+    q: '항목은 몇 개까지 넣을 수 있나요?',
+    a: '2개부터 20개까지 됩니다. 칸이 너무 많으면 글자가 작아져서 휴대폰에서 읽기 어려워요.',
+  },
+  {
+    q: '"뽑힌 항목 빼기"는 언제 쓰나요?',
+    a: '발표 순서나 당번 순서처럼 한 사람씩 차례로 뽑을 때 씁니다. 켜 두면 뽑힌 항목이 다음 판부터 돌림판에서 빠집니다.',
+  },
+];
+---
+
+<GameLayout
+  slug="roulette"
+  title="돌림판 룰렛 — 무료 온라인 돌림판 (커피 내기·벌칙·메뉴 정하기)"
+  description="항목을 적고 돌리면 하나가 뽑히는 무료 온라인 돌림판. 커피 내기, 벌칙 정하기, 점심 메뉴 고르기, 발표 순서 정하기에 쓰세요. 휴대폰에서도 바로 됩니다."
+  heading="🎯 돌림판 룰렛"
+  lead="한 줄에 하나씩 항목을 적고 돌리세요. 바늘이 멈춘 칸이 뽑힙니다."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="grid gap-6 md:grid-cols-[1fr_220px]">
+      <div class="relative mx-auto w-full max-w-[420px]">
+        <div
+          class="absolute left-1/2 top-0 z-10 -translate-x-1/2 text-4xl leading-none drop-shadow"
+          aria-hidden="true"
+          style="margin-top:-6px"
+        >
+          🔻
+        </div>
+        <canvas id="rl-canvas" class="block aspect-square w-full" aria-label="돌림판"></canvas>
+        <button
+          type="button"
+          id="rl-spin"
+          class="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-indigo-600 text-lg font-bold text-white shadow-lg"
+          >돌리기</button
+        >
+      </div>
+      <div>
+        <label for="rl-items" class="text-sm font-semibold text-heading dark:text-white">항목 (한 줄에 하나)</label>
+        <textarea id="rl-items" rows="8" class="mg-input mt-1 select-text"></textarea>
+        <label class="mt-2 flex items-center gap-2 text-sm text-muted dark:text-slate-400">
+          <input type="checkbox" id="rl-remove" /> 뽑힌 항목 빼기
+        </label>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button type="button" class="mg-btn" data-preset="coffee">☕ 커피 내기</button>
+          <button type="button" class="mg-btn" data-preset="lunch">🍚 점심 메뉴</button>
+          <button type="button" class="mg-btn" data-preset="yesno">⭕ 할까 말까</button>
+        </div>
+      </div>
+    </div>
+    <p
+      id="rl-result"
+      class="mt-4 min-h-[2.5rem] text-center text-2xl font-bold text-heading dark:text-white"
+      aria-live="polite"
+    >
+    </p>
+    <p id="rl-history" class="text-center text-sm text-muted dark:text-slate-400"></p>
+  </div>
+
+  <h2>사용 방법</h2>
+  <ol>
+    <li>오른쪽(휴대폰은 아래쪽) 칸에 <strong>항목을 한 줄에 하나씩</strong> 적습니다. 적는 즉시 돌림판에 반영돼요.</li>
+    <li>가운데 <strong>돌리기</strong>를 누르면 돌림판이 돌다가 천천히 멈춥니다.</li>
+    <li>맨 위 <strong>빨간 바늘</strong>이 가리키는 칸이 결과입니다.</li>
+  </ol>
+
+  <h2>이럴 때 쓰기 좋아요</h2>
+  <ul>
+    <li><strong>커피 내기:</strong> "커피 쏘기" 한 칸, 나머지는 "통과". 사람 수만큼 칸을 만들면 공평해요.</li>
+    <li><strong>점심 메뉴:</strong> 고민되는 메뉴를 다 적어 두고 돌리세요. 마음에 안 들면… 한 번 더.</li>
+    <li><strong>발표·당번 순서:</strong> 이름을 적고 "뽑힌 항목 빼기"를 켠 다음 차례대로 돌리면 순서가 정해집니다.</li>
+  </ul>
+
+  <h2>돌림판은 공평한가요</h2>
+  <p>
+    이 돌림판은 돌기 전에 이미 결과를 무작위로 정하고, 그 칸 안의 아무 곳에서 바늘이 멈추도록 회전 각도를 계산합니다.
+    그래서 돌리는 세기나 타이밍과 상관없이 <strong>모든 칸이 똑같은 확률</strong>로 뽑혀요. 칸의 크기도 모두 같습니다.
+  </p>
+</GameLayout>
+
+<script>
+  const KEY = 'zin-roulette-v1';
+  const PRESETS: Record<string, string[]> = {
+    coffee: ['커피 쏘기', '통과', '통과', '통과', '통과', '통과'],
+    lunch: ['김치찌개', '돈가스', '국밥', '짜장면', '비빔밥', '샐러드', '햄버거', '쌀국수'],
+    yesno: ['한다', '안 한다'],
+  };
+  const COLORS = [
+    '#6366f1',
+    '#f59e0b',
+    '#10b981',
+    '#ef4444',
+    '#3b82f6',
+    '#ec4899',
+    '#14b8a6',
+    '#f97316',
+    '#8b5cf6',
+    '#84cc16',
+  ];
+  const $ = (id: string) => document.getElementById(id)!;
+  const canvas = $('rl-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const ta = $('rl-items') as HTMLTextAreaElement;
+  const spinBtn = $('rl-spin') as HTMLButtonElement;
+  const resultEl = $('rl-result');
+  const historyEl = $('rl-history');
+  const removeBox = $('rl-remove') as HTMLInputElement;
+
+  let items: string[] = [];
+  let rot = 0;
+  let spinning = false;
+  const history: string[] = [];
+
+  function parse() {
+    items = ta.value
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 20);
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, ta.value);
+    } catch {
+      /* 무시 */
+    }
+  }
+
+  let size = 0;
+  function layout() {
+    size = canvas.clientWidth || 360;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  function draw(highlight = -1) {
+    const r = size / 2 - 6;
+    const cx = size / 2,
+      cy = size / 2;
+    ctx.clearRect(0, 0, size, size);
+    if (items.length < 2) {
+      ctx.fillStyle = '#e2e8f0';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#475569';
+      ctx.font = '600 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('항목을 2개 이상 적어 주세요', cx, cy + r * 0.55);
+      return;
+    }
+    const seg = (Math.PI * 2) / items.length;
+    const fs = Math.max(11, Math.min(20, (r * 1.3) / Math.max(4, items.length)));
+    for (let i = 0; i < items.length; i++) {
+      const a0 = rot + i * seg;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, a0, a0 + seg);
+      ctx.closePath();
+      let color = COLORS[i % COLORS.length];
+      // 칸 수가 색 수+1이면 처음과 끝이 같은 색이 되지 않도록
+      if (i === items.length - 1 && i % COLORS.length === 0 && i > 0) color = COLORS[3];
+      ctx.fillStyle = color;
+      ctx.globalAlpha = highlight >= 0 && highlight !== i ? 0.35 : 1;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(a0 + seg / 2);
+      ctx.fillStyle = '#fff';
+      ctx.font = `700 ${fs}px sans-serif`;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      let label = items[i];
+      const maxW = r - 52;
+      while (label.length > 1 && ctx.measureText(label).width > maxW) label = label.slice(0, -1);
+      if (label !== items[i]) label = label.slice(0, -1) + '…';
+      ctx.fillText(label, r - 12, 0);
+      ctx.restore();
+    }
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+  }
+
+  function spin() {
+    if (spinning) return;
+    parse();
+    if (items.length < 2) {
+      resultEl.textContent = '항목을 2개 이상 적어 주세요.';
+      return;
+    }
+    spinning = true;
+    spinBtn.disabled = true;
+    resultEl.textContent = '두근두근…';
+    const n = items.length;
+    const seg = (Math.PI * 2) / n;
+    const pick = Math.floor(Math.random() * n);
+    // 바늘은 맨 위(-90°). 바늘 아래에 pick 칸의 10%~90% 지점이 오도록 최종 각도를 정한다
+    const within = (0.1 + Math.random() * 0.8) * seg;
+    let target = -Math.PI / 2 - pick * seg - within;
+    const start = rot;
+    const minTurns = start + Math.PI * 2 * (5 + Math.floor(Math.random() * 2));
+    while (target < minTurns) target += Math.PI * 2;
+    const dur = 4200;
+    const t0 = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - t0) / dur);
+      const e = 1 - Math.pow(1 - t, 4);
+      rot = start + (target - start) * e;
+      draw();
+      if (t < 1) requestAnimationFrame(step);
+      else finish(pick);
+    };
+    requestAnimationFrame(step);
+  }
+
+  function finish(pick: number) {
+    rot = rot % (Math.PI * 2);
+    const won = items[pick];
+    draw(pick);
+    resultEl.textContent = `🎉 ${won}`;
+    if (navigator.vibrate) navigator.vibrate(60);
+    history.unshift(won);
+    historyEl.textContent = '지금까지: ' + history.slice(0, 10).join(' · ');
+    if (removeBox.checked) {
+      const lines = ta.value.split('\n');
+      const idx = lines.findIndex((l) => l.trim() === won);
+      if (idx >= 0) lines.splice(idx, 1);
+      ta.value = lines.join('\n');
+      save();
+      setTimeout(() => {
+        parse();
+        draw();
+      }, 1200);
+    }
+    spinning = false;
+    spinBtn.disabled = false;
+  }
+
+  ta.addEventListener('input', () => {
+    parse();
+    save();
+    if (!spinning) draw();
+  });
+  spinBtn.addEventListener('click', spin);
+  document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((b) =>
+    b.addEventListener('click', () => {
+      if (spinning) return;
+      ta.value = PRESETS[b.dataset.preset!].join('\n');
+      parse();
+      save();
+      draw();
+      resultEl.textContent = '';
+    })
+  );
+  window.addEventListener('resize', layout);
+
+  let saved = '';
+  try {
+    saved = localStorage.getItem(KEY) || '';
+  } catch {
+    /* 무시 */
+  }
+  ta.value = saved || PRESETS.coffee.join('\n');
+  parse();
+  layout();
+</script>

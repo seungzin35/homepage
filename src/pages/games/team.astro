@@ -1,0 +1,214 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '팀은 어떻게 나눠지나요?',
+    a: '명단 전체를 무작위로 섞은 다음, 첫 번째 팀부터 한 명씩 돌아가며 넣습니다. 그래서 팀끼리 인원 차이는 많아야 1명이에요.',
+  },
+  {
+    q: '이름은 어떻게 적나요?',
+    a: '한 줄에 한 명씩 적거나, 쉼표(,)로 구분해서 한 줄에 적어도 됩니다. 같은 이름이 두 번 들어가면 두 사람으로 칩니다.',
+  },
+  {
+    q: '명단은 저장되나요?',
+    a: '다음 모임에서 또 쓰기 편하도록 지금 쓰는 브라우저에만 저장됩니다. 서버로 보내지 않아요.',
+  },
+  {
+    q: '결과를 단톡방에 올리려면요?',
+    a: '"결과 복사"를 누르면 팀별 명단이 글자로 복사됩니다. 카카오톡이나 메신저에 그대로 붙여 넣으세요.',
+  },
+];
+---
+
+<GameLayout
+  slug="team"
+  title="팀 나누기·제비뽑기 — 무료 랜덤 팀 편성, 당첨자 뽑기"
+  description="명단을 넣으면 무작위로 팀을 나누거나 당첨자를 뽑는 무료 도구. 풋살·볼링 팀 편성, 조 나누기, 경품 추첨에 쓰세요. 결과는 바로 복사해서 단톡방에 공유."
+  heading="👥 팀 나누기·제비뽑기"
+  lead="명단을 붙여 넣고 버튼 한 번. 팀 편성도, 당첨자 추첨도 공평하게."
+  faqs={faqs}
+>
+  <div slot="game">
+    <div class="flex flex-wrap gap-2" role="group" aria-label="모드 선택">
+      <button type="button" class="mg-btn" data-mode="team" aria-pressed="true">👥 팀 나누기</button>
+      <button type="button" class="mg-btn" data-mode="draw" aria-pressed="false">🎟️ 제비뽑기</button>
+    </div>
+
+    <label for="tm-names" class="mt-4 block text-sm font-semibold text-heading dark:text-white"
+      >명단 (한 줄에 한 명, 또는 쉼표로 구분)</label
+    >
+    <textarea id="tm-names" rows="6" class="mg-input mt-1"></textarea>
+    <p id="tm-total" class="mt-1 text-sm text-muted dark:text-slate-400"></p>
+
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <span id="tm-label" class="text-sm font-semibold text-heading dark:text-white">팀 수</span>
+      <button type="button" class="mg-btn" id="tm-minus" aria-label="줄이기">−</button>
+      <strong id="tm-k" class="w-8 text-center text-lg text-heading dark:text-white">2</strong>
+      <button type="button" class="mg-btn" id="tm-plus" aria-label="늘리기">+</button>
+      <button type="button" class="mg-btn mg-primary ml-auto" id="tm-go">🎲 나누기</button>
+    </div>
+
+    <div id="tm-out" class="mt-5 grid gap-3 sm:grid-cols-2" aria-live="polite"></div>
+    <div class="mt-3 flex items-center gap-3">
+      <button type="button" class="mg-btn hidden" id="tm-copy">📋 결과 복사</button>
+      <span id="tm-copied" class="text-sm text-muted dark:text-slate-400"></span>
+    </div>
+  </div>
+
+  <h2>사용 방법</h2>
+  <ol>
+    <li><strong>팀 나누기</strong> 또는 <strong>제비뽑기</strong>를 고릅니다.</li>
+    <li>명단 칸에 이름을 적습니다. 단톡방 참여자 목록을 복사해 붙여 넣어도 돼요.</li>
+    <li>팀 나누기는 <strong>팀 수</strong>, 제비뽑기는 <strong>뽑을 인원</strong>을 정합니다.</li>
+    <li>버튼을 누르면 결과가 나오고, <strong>결과 복사</strong>로 공유할 수 있어요.</li>
+  </ol>
+
+  <h2>공평하게 나누는 방법</h2>
+  <p>
+    사람이 직접 팀을 짜면 아무래도 친한 사람끼리 묶이거나 실력이 한쪽으로 쏠리기 쉽습니다. 이 도구는 명단을 완전히
+    무작위로 섞는 방법(피셔–예이츠 셔플)을 써서, 모든 순서가 같은 확률로 나오게 합니다. 섞은 뒤에는 팀마다 한 명씩
+    돌아가며 넣기 때문에 팀 인원도 고르게 맞춰져요.
+  </p>
+
+  <h2>이럴 때 쓰기 좋아요</h2>
+  <ul>
+    <li><strong>풋살·농구·볼링</strong> 같은 운동 모임 팀 편성</li>
+    <li><strong>워크숍·수업</strong> 조 나누기</li>
+    <li><strong>경품 추첨, 당번 정하기</strong> 처럼 몇 명만 뽑아야 할 때</li>
+  </ul>
+</GameLayout>
+
+<script>
+  const KEY = 'zin-team-v1';
+  const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#ec4899', '#14b8a6', '#f97316'];
+  const $ = (id: string) => document.getElementById(id)!;
+  const ta = $('tm-names') as HTMLTextAreaElement;
+  const total = $('tm-total');
+  const kEl = $('tm-k');
+  const label = $('tm-label');
+  const go = $('tm-go') as HTMLButtonElement;
+  const out = $('tm-out');
+  const copyBtn = $('tm-copy');
+  const copied = $('tm-copied');
+  const modeBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-mode]')];
+
+  let mode: 'team' | 'draw' = 'team';
+  let k = 2;
+  let lastText = '';
+
+  function names() {
+    return ta.value
+      .split(/[\n,]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  function shuffle<T>(a: T[]) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function esc(s: string) {
+    return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  }
+
+  function clampK() {
+    const n = names().length;
+    const max = mode === 'team' ? Math.max(2, Math.min(8, n)) : Math.max(1, n - 1);
+    k = Math.min(Math.max(mode === 'team' ? 2 : 1, k), max);
+    kEl.textContent = String(k);
+    total.textContent = `지금 ${n}명`;
+  }
+
+  function setMode(m: 'team' | 'draw') {
+    mode = m;
+    modeBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+    label.textContent = m === 'team' ? '팀 수' : '뽑을 인원';
+    go.textContent = m === 'team' ? '🎲 나누기' : '🎲 뽑기';
+    k = m === 'team' ? 2 : 1;
+    out.innerHTML = '';
+    copyBtn.classList.add('hidden');
+    clampK();
+  }
+
+  function card(title: string, members: string[], color: string) {
+    return `<div class="rounded-2xl border-2 p-4" style="border-color:${color}">
+      <p class="font-bold" style="color:${color}">${esc(title)} <span class="text-sm font-medium opacity-70">(${members.length}명)</span></p>
+      <p class="mt-2 leading-relaxed text-heading dark:text-white">${members.map(esc).join(', ')}</p>
+    </div>`;
+  }
+
+  function run() {
+    const list = names();
+    if (list.length < 2) {
+      out.innerHTML = '<p class="text-muted">이름을 2명 이상 적어 주세요.</p>';
+      return;
+    }
+    clampK();
+    go.disabled = true;
+    copied.textContent = '';
+    let flicks = 0;
+    const flick = setInterval(() => {
+      out.innerHTML = `<p class="text-2xl font-bold text-heading dark:text-white">🎲 ${esc(list[Math.floor(Math.random() * list.length)])}</p>`;
+      if (++flicks >= 10) {
+        clearInterval(flick);
+        show(list);
+        go.disabled = false;
+      }
+    }, 70);
+  }
+
+  function show(list: string[]) {
+    const s = shuffle([...list]);
+    if (mode === 'team') {
+      const teams: string[][] = Array.from({ length: k }, () => []);
+      s.forEach((name, i) => teams[i % k].push(name));
+      out.innerHTML = teams.map((t, i) => card(`${i + 1}팀`, t, COLORS[i % COLORS.length])).join('');
+      lastText = teams.map((t, i) => `${i + 1}팀 (${t.length}명): ${t.join(', ')}`).join('\n');
+    } else {
+      const winners = s.slice(0, k);
+      const rest = s.slice(k);
+      out.innerHTML = card('🎉 당첨', winners, '#ef4444') + card('통과', rest, '#94a3b8');
+      lastText = `당첨 (${winners.length}명): ${winners.join(', ')}`;
+    }
+    copyBtn.classList.remove('hidden');
+  }
+
+  modeBtns.forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode as 'team' | 'draw')));
+  $('tm-minus').addEventListener('click', () => {
+    k--;
+    clampK();
+  });
+  $('tm-plus').addEventListener('click', () => {
+    k++;
+    clampK();
+  });
+  go.addEventListener('click', run);
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(lastText);
+      copied.textContent = '복사했어요!';
+    } catch {
+      copied.textContent = '복사가 막혀 있어요. 결과를 길게 눌러 복사해 주세요.';
+    }
+  });
+  ta.addEventListener('input', () => {
+    clampK();
+    try {
+      localStorage.setItem(KEY, ta.value);
+    } catch {
+      /* 무시 */
+    }
+  });
+
+  let saved = '';
+  try {
+    saved = localStorage.getItem(KEY) || '';
+  } catch {
+    /* 무시 */
+  }
+  ta.value = saved || '민준\n서연\n도윤\n하은\n시우\n지유\n주원\n수아';
+  setMode('team');
+</script>

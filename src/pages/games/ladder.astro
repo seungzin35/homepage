@@ -1,0 +1,409 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '사다리 결과는 정말 무작위인가요?',
+    a: '네. "사다리 만들기"를 누를 때마다 가로줄의 위치와 개수를 브라우저의 난수로 새로 정합니다. 누가 어디로 갈지 미리 정해 두지 않아요.',
+  },
+  {
+    q: '몇 명까지 할 수 있나요?',
+    a: '2명부터 10명까지 됩니다. 휴대폰 화면에서도 이름이 보이도록 10명으로 제한했어요.',
+  },
+  {
+    q: '입력한 이름은 어디에 저장되나요?',
+    a: '다음에 다시 쓰기 편하도록 지금 쓰는 브라우저에만 저장됩니다. 서버로 보내지 않아요.',
+  },
+  {
+    q: '결과를 숨겼다가 한 명씩 공개할 수 있나요?',
+    a: '"가로줄 숨기기"를 켜고 사다리를 만들면 가로줄이 보이지 않습니다. 이름을 하나씩 누르면 그 사람이 지나가는 길만 드러나요.',
+  },
+];
+---
+
+<GameLayout
+  slug="ladder"
+  title="사다리타기 — 무료 온라인 사다리 게임 (이름·결과 입력)"
+  description="이름과 결과를 넣으면 바로 그려지는 무료 사다리타기. 커피 내기, 순서 정하기, 당번 정하기에 쓰세요. 2~10명, 가로줄 숨기기, 전체 결과 한 번에 보기."
+  heading="🪜 사다리타기"
+  lead="이름과 결과를 넣고 사다리를 만드세요. 이름을 누르면 그 사람이 사다리를 탑니다."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-sm font-semibold text-heading dark:text-white">인원</span>
+      <button type="button" class="mg-btn" id="ld-minus" aria-label="인원 줄이기">−</button>
+      <strong id="ld-count" class="w-8 text-center text-lg text-heading dark:text-white">4</strong>
+      <button type="button" class="mg-btn" id="ld-plus" aria-label="인원 늘리기">+</button>
+      <label class="ml-auto flex items-center gap-2 text-sm text-muted dark:text-slate-400">
+        <input type="checkbox" id="ld-hide" /> 가로줄 숨기기
+      </label>
+    </div>
+
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+      <div>
+        <p class="mb-1 text-sm font-semibold text-heading dark:text-white">참가자</p>
+        <div id="ld-names" class="grid gap-2"></div>
+      </div>
+      <div>
+        <p class="mb-1 text-sm font-semibold text-heading dark:text-white">결과</p>
+        <div id="ld-results" class="grid gap-2"></div>
+      </div>
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button type="button" class="mg-btn mg-primary" id="ld-build">🪜 사다리 만들기</button>
+      <button type="button" class="mg-btn" id="ld-all" disabled>👀 전체 결과 보기</button>
+    </div>
+
+    <div id="ld-board" class="mt-6 hidden">
+      <p class="mb-2 text-sm text-muted dark:text-slate-400">이름을 누르면 그 사람이 사다리를 탑니다.</p>
+      <div class="rounded-2xl border border-gray-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+        <div id="ld-top" class="grid gap-1"></div>
+        <canvas id="ld-canvas" class="my-1 block w-full" aria-label="사다리 그림"></canvas>
+        <div id="ld-bottom" class="grid gap-1"></div>
+      </div>
+      <ul id="ld-summary" class="mt-4 grid gap-1 text-heading dark:text-white"></ul>
+    </div>
+  </div>
+
+  <h2>사용 방법</h2>
+  <ol>
+    <li><strong>인원</strong>을 2~10명 사이로 정합니다.</li>
+    <li>왼쪽에 <strong>참가자 이름</strong>, 오른쪽에 <strong>결과</strong>(당첨, 꽝, 커피, 청소 등)를 적습니다.</li>
+    <li><strong>사다리 만들기</strong>를 누르면 가로줄이 무작위로 그어집니다.</li>
+    <li>위쪽 이름을 하나씩 누르거나, <strong>전체 결과 보기</strong>로 한 번에 확인하세요.</li>
+  </ol>
+
+  <h2>사다리타기는 왜 공평할까</h2>
+  <p>
+    사다리타기에서는 가로줄을 만나면 반드시 옆으로 건너가고, 한 가로줄은 두 사람이 서로 자리를 바꾸는 역할만 합니다.
+    그래서 가로줄이 몇 개든 <strong>출발한 사람 수와 도착하는 결과 수가 항상 1:1로 맞고</strong>, 두 사람이 같은 결과에
+    도착하는 일은 생기지 않습니다. 가로줄 위치만 무작위로 정하면 누가 어떤 결과를 받을지 아무도 미리 알 수 없어요.
+  </p>
+
+  <h2>이렇게 써 보세요</h2>
+  <ul>
+    <li><strong>커피 내기:</strong> 결과 하나만 "커피 쏘기", 나머지는 "통과".</li>
+    <li><strong>발표 순서:</strong> 결과에 1, 2, 3… 을 적으면 순서가 정해집니다.</li>
+    <li><strong>당번 정하기:</strong> 청소, 설거지, 장보기처럼 할 일을 결과에 나눠 적으세요.</li>
+  </ul>
+</GameLayout>
+
+<script>
+  const KEY = 'zin-ladder-v1';
+  const COLORS = [
+    '#ef4444',
+    '#3b82f6',
+    '#22c55e',
+    '#f59e0b',
+    '#a855f7',
+    '#ec4899',
+    '#14b8a6',
+    '#f97316',
+    '#6366f1',
+    '#84cc16',
+  ];
+  const ROWS = 14;
+  const $ = (id: string) => document.getElementById(id)!;
+  const namesBox = $('ld-names');
+  const resultsBox = $('ld-results');
+  const countEl = $('ld-count');
+  const board = $('ld-board');
+  const top = $('ld-top');
+  const bottom = $('ld-bottom');
+  const canvas = $('ld-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const allBtn = $('ld-all') as HTMLButtonElement;
+  const hideBox = $('ld-hide') as HTMLInputElement;
+  const summary = $('ld-summary');
+
+  let n = 4;
+  let names: string[] = [];
+  let results: string[] = [];
+  let rungs: boolean[][] = []; // rungs[row][col]: col과 col+1 사이 가로줄
+  let paths: Array<{ pts: Array<[number, number]>; color: string; progress: number; done: boolean; end: number }> = [];
+  let hidden = false;
+  let built = false;
+  let anim = 0;
+
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (s && Array.isArray(s.names)) {
+        n = Math.min(10, Math.max(2, s.names.length));
+        names = s.names;
+        results = s.results || [];
+      }
+    } catch {
+      /* 저장소를 못 써도 기본값으로 동작 */
+    }
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ names, results }));
+    } catch {
+      /* 무시 */
+    }
+  }
+
+  function defaultName(i: number) {
+    return `참가자 ${i + 1}`;
+  }
+  function defaultResult(i: number) {
+    return i === 0 ? '당첨' : '꽝';
+  }
+
+  function renderInputs() {
+    countEl.textContent = String(n);
+    namesBox.innerHTML = '';
+    resultsBox.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const a = document.createElement('input');
+      a.className = 'mg-input';
+      a.maxLength = 12;
+      a.value = names[i] ?? defaultName(i);
+      a.setAttribute('aria-label', `참가자 ${i + 1} 이름`);
+      a.addEventListener('input', () => {
+        names[i] = a.value;
+        save();
+      });
+      namesBox.appendChild(a);
+      const b = document.createElement('input');
+      b.className = 'mg-input';
+      b.maxLength = 12;
+      b.value = results[i] ?? defaultResult(i);
+      b.setAttribute('aria-label', `결과 ${i + 1}`);
+      b.addEventListener('input', () => {
+        results[i] = b.value;
+        save();
+      });
+      resultsBox.appendChild(b);
+    }
+  }
+
+  function syncFromInputs() {
+    const ni = [...namesBox.querySelectorAll('input')].map((e, i) => e.value.trim() || defaultName(i));
+    const ri = [...resultsBox.querySelectorAll('input')].map((e, i) => e.value.trim() || defaultResult(i));
+    names = ni;
+    results = ri;
+    save();
+  }
+
+  function makeRungs() {
+    rungs = [];
+    for (let r = 0; r < ROWS; r++) {
+      const row: boolean[] = [];
+      for (let c = 0; c < n - 1; c++) {
+        row.push(!row[c - 1] && Math.random() < 0.42);
+      }
+      rungs.push(row);
+    }
+    // 이웃한 두 줄 사이에 가로줄이 하나도 없으면 한 개는 넣어 준다
+    for (let c = 0; c < n - 1; c++) {
+      if (!rungs.some((row) => row[c])) {
+        for (let t = 0; t < 30; t++) {
+          const r = Math.floor(Math.random() * ROWS);
+          if (!rungs[r][c - 1] && !rungs[r][c + 1]) {
+            rungs[r][c] = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  let cw = 0,
+    ch = 0;
+  function layout() {
+    const w = canvas.parentElement!.clientWidth - 24;
+    cw = Math.max(200, w);
+    ch = Math.round(Math.min(420, Math.max(260, cw * 0.75)));
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = cw * dpr;
+    canvas.height = ch * dpr;
+    canvas.style.height = ch + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  const colX = (c: number) => ((c + 0.5) * cw) / n;
+  const rowY = (r: number) => ((r + 1) * ch) / (ROWS + 1);
+
+  function tracePath(start: number) {
+    let c = start;
+    const pts: Array<[number, number]> = [[colX(c), 0]];
+    for (let r = 0; r < ROWS; r++) {
+      const y = rowY(r);
+      if (rungs[r][c]) {
+        pts.push([colX(c), y], [colX(c + 1), y]);
+        c++;
+      } else if (c > 0 && rungs[r][c - 1]) {
+        pts.push([colX(c), y], [colX(c - 1), y]);
+        c--;
+      }
+    }
+    pts.push([colX(c), ch]);
+    return { pts, end: c };
+  }
+
+  function pathLength(pts: Array<[number, number]>) {
+    let L = 0;
+    for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    return L;
+  }
+
+  function draw() {
+    const dark = document.documentElement.classList.contains('dark');
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = dark ? '#64748b' : '#94a3b8';
+    ctx.lineWidth = 3;
+    for (let c = 0; c < n; c++) {
+      ctx.beginPath();
+      ctx.moveTo(colX(c), 0);
+      ctx.lineTo(colX(c), ch);
+      ctx.stroke();
+    }
+    if (!hidden) {
+      for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c < n - 1; c++)
+          if (rungs[r][c]) {
+            ctx.beginPath();
+            ctx.moveTo(colX(c), rowY(r));
+            ctx.lineTo(colX(c + 1), rowY(r));
+            ctx.stroke();
+          }
+    }
+    ctx.lineWidth = 5;
+    for (const p of paths) {
+      ctx.strokeStyle = p.color;
+      ctx.beginPath();
+      let left = p.progress;
+      ctx.moveTo(p.pts[0][0], p.pts[0][1]);
+      for (let i = 1; i < p.pts.length && left > 0; i++) {
+        const [x0, y0] = p.pts[i - 1];
+        const [x1, y1] = p.pts[i];
+        const seg = Math.hypot(x1 - x0, y1 - y0);
+        if (left >= seg) ctx.lineTo(x1, y1);
+        else ctx.lineTo(x0 + ((x1 - x0) * left) / seg, y0 + ((y1 - y0) * left) / seg);
+        left -= seg;
+      }
+      ctx.stroke();
+    }
+  }
+
+  function tick(prev: number) {
+    cancelAnimationFrame(anim);
+    const step = (now: number) => {
+      const dt = Math.min(0.05, (now - prev) / 1000);
+      prev = now;
+      let running = false;
+      for (const p of paths) {
+        if (p.done) continue;
+        p.progress += dt * Math.max(500, ch * 2.2);
+        if (p.progress >= pathLength(p.pts)) {
+          p.done = true;
+          revealResult(paths.indexOf(p));
+        } else running = true;
+      }
+      draw();
+      if (running) anim = requestAnimationFrame(step);
+    };
+    anim = requestAnimationFrame(step);
+  }
+
+  const started = new Set<number>();
+  const pathOwner: number[] = [];
+
+  function revealResult(pathIdx: number) {
+    const who = pathOwner[pathIdx];
+    const p = paths[pathIdx];
+    const cell = bottom.children[p.end] as HTMLElement;
+    cell.style.borderColor = p.color;
+    cell.style.color = p.color;
+    const li = document.createElement('li');
+    li.innerHTML = `<span style="color:${p.color}">●</span> <strong></strong> → <span></span>`;
+    li.querySelector('strong')!.textContent = names[who];
+    li.querySelectorAll('span')[1].textContent = results[p.end];
+    summary.appendChild(li);
+  }
+
+  function ride(i: number) {
+    if (!built || started.has(i)) return;
+    started.add(i);
+    const { pts, end } = tracePath(i);
+    paths.push({ pts, end, color: COLORS[i % COLORS.length], progress: 0, done: false });
+    pathOwner.push(i);
+    const btn = top.children[i] as HTMLElement;
+    btn.style.background = COLORS[i % COLORS.length];
+    btn.style.color = '#fff';
+    btn.style.borderColor = COLORS[i % COLORS.length];
+    if (started.size === n) allBtn.disabled = true;
+    tick(performance.now());
+  }
+
+  function cellClass() {
+    return 'truncate rounded-lg border border-gray-200 px-1 py-1.5 text-center text-sm font-semibold text-heading dark:border-slate-600 dark:text-white';
+  }
+
+  function build() {
+    syncFromInputs();
+    hidden = hideBox.checked;
+    makeRungs();
+    paths = [];
+    pathOwner.length = 0;
+    started.clear();
+    summary.innerHTML = '';
+    board.classList.remove('hidden');
+    top.style.gridTemplateColumns = bottom.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+    top.innerHTML = '';
+    bottom.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = cellClass();
+      b.textContent = names[i];
+      b.title = `${names[i]} 사다리 타기`;
+      b.addEventListener('click', () => ride(i));
+      top.appendChild(b);
+      const d = document.createElement('div');
+      d.className = cellClass();
+      d.textContent = results[i];
+      bottom.appendChild(d);
+    }
+    built = true;
+    allBtn.disabled = false;
+    layout();
+    draw();
+    board.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function setCount(v: number) {
+    syncFromInputs();
+    n = Math.min(10, Math.max(2, v));
+    names = names.slice(0, n);
+    results = results.slice(0, n);
+    renderInputs();
+    save();
+  }
+
+  $('ld-minus').addEventListener('click', () => setCount(n - 1));
+  $('ld-plus').addEventListener('click', () => setCount(n + 1));
+  $('ld-build').addEventListener('click', build);
+  allBtn.addEventListener('click', () => {
+    for (let i = 0; i < n; i++) ride(i);
+  });
+  window.addEventListener('resize', () => {
+    if (!built) return;
+    layout();
+    // 크기가 바뀌면 진행 중인 길을 새 좌표로 다시 계산
+    paths.forEach((p, k) => {
+      const t = tracePath(pathOwner[k]);
+      p.pts = t.pts;
+      if (p.done) p.progress = pathLength(p.pts);
+    });
+    draw();
+  });
+
+  load();
+  renderInputs();
+</script>

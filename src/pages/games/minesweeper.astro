@@ -1,0 +1,396 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '처음 누른 칸에서 지뢰가 터질 수도 있나요?',
+    a: '아니요. 지뢰는 첫 칸을 누른 다음에 놓이고, 첫 칸과 그 주변 8칸에는 지뢰를 두지 않습니다. 그래서 첫 클릭은 항상 넓게 열려요.',
+  },
+  {
+    q: '휴대폰에서는 깃발을 어떻게 꽂나요?',
+    a: '칸을 0.4초쯤 길게 누르거나, 아래 "🚩 깃발 모드"를 켠 다음 누르면 깃발이 꽂힙니다. PC에서는 오른쪽 클릭이에요.',
+  },
+  {
+    q: '숫자를 눌렀더니 주변 칸이 한꺼번에 열렸어요.',
+    a: '숫자 칸 주변에 그 숫자만큼 깃발을 꽂아 두었다면, 숫자 칸을 누를 때 나머지 주변 칸이 한 번에 열립니다. 빠르게 풀 때 쓰는 기능인데, 깃발을 잘못 꽂았다면 지뢰가 터질 수 있어요.',
+  },
+  {
+    q: '난이도별 크기는 어떻게 되나요?',
+    a: '쉬움 9×9에 지뢰 10개, 보통 12×12에 지뢰 24개, 어려움 16×16에 지뢰 40개입니다. 휴대폰 화면에서도 누를 수 있도록 보통은 12×12로 줄였어요.',
+  },
+];
+---
+
+<GameLayout
+  slug="minesweeper"
+  title="지뢰찾기 무료 — 설치 없이 바로 하는 지뢰찾기 게임"
+  description="설치 없이 브라우저에서 바로 하는 무료 지뢰찾기. 첫 칸은 항상 안전하고, 휴대폰은 길게 누르거나 깃발 모드로 깃발을 꽂습니다. 쉬움·보통·어려움, 최고 기록 저장."
+  heading="💣 지뢰찾기"
+  lead="숫자는 주변 8칸에 숨은 지뢰 수예요. 지뢰를 피해 모든 칸을 열면 이깁니다."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="flex flex-wrap items-center gap-2">
+      <button type="button" class="mg-btn" data-level="easy">쉬움</button>
+      <button type="button" class="mg-btn" data-level="normal">보통</button>
+      <button type="button" class="mg-btn" data-level="hard">어려움</button>
+      <span class="ml-auto font-mono text-lg text-heading dark:text-white">💣 <span id="ms-left">10</span></span>
+      <span class="font-mono text-lg text-heading dark:text-white">⏱ <span id="ms-time">0</span></span>
+    </div>
+    <p id="ms-status" class="mt-3 min-h-[1.5rem] font-semibold text-heading dark:text-white" aria-live="polite"></p>
+    <div id="ms-grid" class="ms-grid mt-2" role="grid" aria-label="지뢰찾기 판"></div>
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <button type="button" class="mg-btn" id="ms-flag" aria-pressed="false">🚩 깃발 모드</button>
+      <button type="button" class="mg-btn mg-primary" id="ms-new">🙂 새 게임</button>
+      <span id="ms-best" class="ml-auto text-sm text-muted dark:text-slate-400"></span>
+    </div>
+  </div>
+
+  <h2>게임 방법</h2>
+  <ol>
+    <li>아무 칸이나 눌러 시작합니다. 첫 칸 주변은 항상 안전해요.</li>
+    <li>열린 칸의 <strong>숫자</strong>는 그 칸을 둘러싼 8칸 안에 지뢰가 몇 개 있는지 알려 줍니다.</li>
+    <li>
+      지뢰라고 확신하는 칸에는 <strong>깃발</strong>을 꽂아 표시합니다. PC는 오른쪽 클릭, 휴대폰은 길게 누르기 또는 깃발
+      모드.
+    </li>
+    <li>지뢰가 없는 칸을 모두 열면 승리, 지뢰를 열면 패배입니다.</li>
+  </ol>
+
+  <h2>처음 하는 분을 위한 요령</h2>
+  <ul>
+    <li>
+      <strong>1부터 보세요.</strong> 숫자 1 주변에 아직 안 열린 칸이 하나뿐이라면, 그 칸이 바로 지뢰입니다.
+    </li>
+    <li>
+      <strong>숫자만큼 깃발이 찼으면 나머지는 안전.</strong> 2 주변에 깃발이 이미 2개 있다면 다른 주변 칸은 모두 열어도 됩니다.
+      이때 숫자를 누르면 한꺼번에 열려요.
+    </li>
+    <li>
+      <strong>1-2-1 무늬.</strong> 벽을 따라 1, 2, 1이 나란히 있으면 양 끝 1의 바깥쪽(안 열린 줄)이 지뢰이고 가운데는 안전한
+      경우가 많습니다.
+    </li>
+    <li>
+      <strong>막히면 넓게 보기.</strong> 확실한 칸이 없을 때는 남은 지뢰 수와 남은 칸 수를 함께 따져 보세요. 정말 반반이라면
+      그때는 운에 맡기는 수밖에 없어요.
+    </li>
+  </ul>
+</GameLayout>
+
+<style is:global>
+  .ms-grid {
+    display: grid;
+    width: 100%;
+    max-width: 520px;
+    gap: 2px;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+  }
+  .ms-grid button {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: #cbd5e1;
+    font-weight: 800;
+    font-size: clamp(0.7rem, 3.6vw, 1.15rem);
+    line-height: 1;
+    padding: 0;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+  }
+  .ms-grid button.open {
+    background: #f1f5f9;
+    box-shadow: none;
+  }
+  .ms-grid button.boom {
+    background: #fca5a5;
+  }
+  .dark .ms-grid button {
+    background: #475569;
+  }
+  .dark .ms-grid button.open {
+    background: #1e293b;
+  }
+  .ms-grid .n1 {
+    color: #2563eb;
+  }
+  .ms-grid .n2 {
+    color: #16a34a;
+  }
+  .ms-grid .n3 {
+    color: #dc2626;
+  }
+  .ms-grid .n4 {
+    color: #7c3aed;
+  }
+  .ms-grid .n5 {
+    color: #b45309;
+  }
+  .ms-grid .n6 {
+    color: #0891b2;
+  }
+  .ms-grid .n7 {
+    color: #111827;
+  }
+  .ms-grid .n8 {
+    color: #6b7280;
+  }
+  .dark .ms-grid .n7 {
+    color: #f8fafc;
+  }
+</style>
+
+<script>
+  type Level = 'easy' | 'normal' | 'hard';
+  const LEVELS: Record<Level, { w: number; h: number; m: number; label: string }> = {
+    easy: { w: 9, h: 9, m: 10, label: '쉬움' },
+    normal: { w: 12, h: 12, m: 24, label: '보통' },
+    hard: { w: 16, h: 16, m: 40, label: '어려움' },
+  };
+  const KEY = 'zin-mines-v1';
+  const $ = (id: string) => document.getElementById(id)!;
+  const grid = $('ms-grid');
+  const leftEl = $('ms-left');
+  const timeEl = $('ms-time');
+  const statusEl = $('ms-status');
+  const bestEl = $('ms-best');
+  const flagBtn = $('ms-flag');
+  const newBtn = $('ms-new');
+  const levelBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-level]')];
+
+  let level: Level = 'easy';
+  let W = 9,
+    H = 9,
+    M = 10;
+  let mine: boolean[] = [];
+  let open: boolean[] = [];
+  let flag: boolean[] = [];
+  let adj: number[] = [];
+  let cells: HTMLButtonElement[] = [];
+  let started = false;
+  let over = false;
+  let flagMode = false;
+  let t0 = 0;
+  let timer = 0;
+  let opened = 0;
+  let best: Partial<Record<Level, number>> = {};
+
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s) {
+      best = s.best || {};
+      if (s.level in LEVELS) level = s.level;
+    }
+  } catch {
+    /* 무시 */
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ best, level }));
+    } catch {
+      /* 무시 */
+    }
+  }
+
+  function neighbors(i: number) {
+    const x = i % W,
+      y = Math.floor(i / W);
+    const out: number[] = [];
+    for (let dy = -1; dy <= 1; dy++)
+      for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        const nx = x + dx,
+          ny = y + dy;
+        if (nx >= 0 && ny >= 0 && nx < W && ny < H) out.push(ny * W + nx);
+      }
+    return out;
+  }
+
+  function placeMines(safe: number) {
+    const banned = new Set([safe, ...neighbors(safe)]);
+    const pool = [...Array(W * H).keys()].filter((i) => !banned.has(i));
+    for (let k = 0; k < M; k++) {
+      const j = k + Math.floor(Math.random() * (pool.length - k));
+      [pool[k], pool[j]] = [pool[j], pool[k]];
+      mine[pool[k]] = true;
+    }
+    adj = mine.map((_, i) => neighbors(i).filter((j) => mine[j]).length);
+  }
+
+  function updateBest() {
+    const b = best[level];
+    bestEl.textContent = b ? `${LEVELS[level].label} 최고 기록 ${b}초` : '';
+  }
+
+  function newGame() {
+    ({ w: W, h: H, m: M } = LEVELS[level]);
+    mine = Array(W * H).fill(false);
+    open = Array(W * H).fill(false);
+    flag = Array(W * H).fill(false);
+    adj = [];
+    started = false;
+    over = false;
+    opened = 0;
+    clearInterval(timer);
+    timeEl.textContent = '0';
+    leftEl.textContent = String(M);
+    statusEl.textContent = '아무 칸이나 눌러 시작하세요.';
+    newBtn.textContent = '🙂 새 게임';
+    levelBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.level === level)));
+    grid.style.gridTemplateColumns = `repeat(${W}, minmax(0, 1fr))`;
+    grid.innerHTML = '';
+    cells = [];
+    for (let i = 0; i < W * H; i++) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', `${(i % W) + 1}열 ${Math.floor(i / W) + 1}행`);
+      bindCell(b, i);
+      grid.appendChild(b);
+      cells.push(b);
+    }
+    updateBest();
+    save();
+  }
+
+  function bindCell(b: HTMLButtonElement, i: number) {
+    let pressTimer = 0;
+    let longFired = false;
+    b.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (!longFired) toggleFlag(i);
+    });
+    b.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      longFired = false;
+      pressTimer = window.setTimeout(() => {
+        longFired = true;
+        toggleFlag(i);
+        if (navigator.vibrate) navigator.vibrate(25);
+      }, 400);
+    });
+    const cancel = () => clearTimeout(pressTimer);
+    b.addEventListener('pointerup', cancel);
+    b.addEventListener('pointerleave', cancel);
+    b.addEventListener('pointercancel', cancel);
+    b.addEventListener('click', () => {
+      if (longFired) {
+        longFired = false;
+        return;
+      }
+      if (flagMode && !open[i]) toggleFlag(i);
+      else reveal(i);
+    });
+  }
+
+  function toggleFlag(i: number) {
+    if (over || open[i]) return;
+    flag[i] = !flag[i];
+    paint(i);
+    leftEl.textContent = String(M - flag.filter(Boolean).length);
+  }
+
+  function paint(i: number) {
+    const b = cells[i];
+    b.className = '';
+    if (open[i]) {
+      b.classList.add('open');
+      if (mine[i]) b.textContent = '💣';
+      else if (adj[i]) {
+        b.textContent = String(adj[i]);
+        b.classList.add('n' + adj[i]);
+      } else b.textContent = '';
+    } else b.textContent = flag[i] ? '🚩' : '';
+  }
+
+  function start(i: number) {
+    started = true;
+    placeMines(i);
+    t0 = performance.now();
+    timer = window.setInterval(() => {
+      timeEl.textContent = String(Math.floor((performance.now() - t0) / 1000));
+    }, 250);
+    statusEl.textContent = '';
+  }
+
+  function flood(i: number) {
+    const stack = [i];
+    while (stack.length) {
+      const c = stack.pop()!;
+      if (open[c] || flag[c]) continue;
+      open[c] = true;
+      opened++;
+      paint(c);
+      if (adj[c] === 0) for (const j of neighbors(c)) if (!open[j] && !mine[j]) stack.push(j);
+    }
+  }
+
+  function reveal(i: number) {
+    if (over || flag[i]) return;
+    if (!started) start(i);
+    if (open[i]) {
+      // 숫자 칸: 주변 깃발 수가 같으면 나머지를 한꺼번에 연다
+      const ns = neighbors(i);
+      if (adj[i] && ns.filter((j) => flag[j]).length === adj[i]) {
+        for (const j of ns) if (!open[j] && !flag[j]) openOne(j);
+      }
+      return;
+    }
+    openOne(i);
+  }
+
+  function openOne(i: number) {
+    if (over) return;
+    if (mine[i]) return lose(i);
+    flood(i);
+    if (opened === W * H - M) win();
+  }
+
+  function lose(i: number) {
+    over = true;
+    clearInterval(timer);
+    for (let k = 0; k < W * H; k++)
+      if (mine[k] && !flag[k]) {
+        open[k] = true;
+        paint(k);
+      }
+    cells[i].classList.add('boom');
+    for (let k = 0; k < W * H; k++) if (flag[k] && !mine[k]) cells[k].textContent = '❌';
+    statusEl.textContent = '💥 지뢰를 밟았어요. 새 게임으로 다시 도전!';
+    newBtn.textContent = '😵 새 게임';
+    if (navigator.vibrate) navigator.vibrate(200);
+  }
+
+  function win() {
+    over = true;
+    clearInterval(timer);
+    const sec = Math.max(1, Math.round((performance.now() - t0) / 1000));
+    timeEl.textContent = String(sec);
+    for (let k = 0; k < W * H; k++)
+      if (mine[k]) {
+        flag[k] = true;
+        paint(k);
+      }
+    leftEl.textContent = '0';
+    const prev = best[level];
+    const record = !prev || sec < prev;
+    if (record) {
+      best[level] = sec;
+      save();
+    }
+    statusEl.textContent = `🎉 ${sec}초 만에 성공!${record ? ' 최고 기록이에요!' : ''}`;
+    newBtn.textContent = '😎 새 게임';
+    updateBest();
+  }
+
+  levelBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      level = b.dataset.level as Level;
+      newGame();
+    })
+  );
+  newBtn.addEventListener('click', newGame);
+  flagBtn.addEventListener('click', () => {
+    flagMode = !flagMode;
+    flagBtn.setAttribute('aria-pressed', String(flagMode));
+  });
+
+  newGame();
+</script>

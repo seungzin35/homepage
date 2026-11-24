@@ -123,20 +123,22 @@ const structuredData = [
     </div>
     <div class="grid gap-4 sm:grid-cols-3">
       {
-        miniGames.map((g) => (
-          <a
-            href={getPermalink(`/games/${g.slug}`)}
-            class="flex items-start gap-3 rounded-2xl border border-gray-200 p-5 transition hover:border-primary dark:border-slate-800 dark:hover:border-indigo-400"
-          >
-            <span class="text-3xl" aria-hidden="true">
-              {g.icon}
-            </span>
-            <span>
-              <span class="block font-bold text-heading dark:text-white">{g.name}</span>
-              <span class="mt-1 block text-sm text-muted dark:text-slate-400">{g.summary}</span>
-            </span>
-          </a>
-        ))
+        miniGames
+          .filter((g) => g.home)
+          .map((g) => (
+            <a
+              href={getPermalink(`/games/${g.slug}`)}
+              class="flex items-start gap-3 rounded-2xl border border-gray-200 p-5 transition hover:border-primary dark:border-slate-800 dark:hover:border-indigo-400"
+            >
+              <span class="text-3xl" aria-hidden="true">
+                {g.icon}
+              </span>
+              <span>
+                <span class="block font-bold text-heading dark:text-white">{g.name}</span>
+                <span class="mt-1 block text-sm text-muted dark:text-slate-400">{g.summary}</span>
+              </span>
+            </a>
+          ))
       }
     </div>
   </section>

@@ -1,0 +1,182 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '평균 반응속도는 어느 정도인가요?',
+    a: '화면을 보고 누르는 반응은 사람마다, 컨디션마다 다르지만 대체로 0.2~0.3초(200~300ms) 사이에 많이 나옵니다. 여기에 휴대폰·모니터·마우스의 지연이 조금씩 더해져요.',
+  },
+  {
+    q: '왜 휴대폰과 PC 기록이 다르게 나오나요?',
+    a: '화면이 바뀌어 보이기까지 걸리는 시간(화면 주사율)과 터치·클릭이 인식되기까지 걸리는 시간이 기기마다 다르기 때문입니다. 기록을 비교할 때는 같은 기기에서 재는 게 공평해요.',
+  },
+  {
+    q: '너무 빨리 눌렀다고 나와요.',
+    a: '초록색으로 바뀌기 전에 누르면 그 회차는 다시 합니다. 기다리는 시간은 매번 1.5~4.5초 사이에서 무작위로 바뀌어서, 박자를 외워 누를 수 없어요.',
+  },
+  {
+    q: '기록은 어디에 저장되나요?',
+    a: '최고 평균 기록은 지금 쓰는 브라우저에만 저장됩니다. 서버로 보내지 않아요.',
+  },
+];
+---
+
+<GameLayout
+  slug="reaction"
+  title="반응속도 테스트 — 내 반응속도 ms 측정 (무료)"
+  description="화면이 초록색으로 바뀌는 순간 누르세요. 5번 재서 평균 반응속도를 ms 단위로 알려 주는 무료 반응속도 테스트. 휴대폰과 PC 모두 됩니다."
+  heading="⚡ 반응속도 테스트"
+  lead="빨간 화면이 초록색으로 바뀌는 순간 누르세요. 5번 재서 평균을 냅니다."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <button
+      type="button"
+      id="rt-box"
+      class="flex h-72 w-full flex-col items-center justify-center rounded-2xl text-white shadow transition-colors duration-75 sm:h-80"
+      style="background:#4f46e5; touch-action: manipulation"
+    >
+      <span id="rt-big" class="text-4xl font-black">⚡ 시작</span>
+      <span id="rt-small" class="mt-3 text-lg opacity-90">화면을 누르면 시작해요</span>
+    </button>
+    <div class="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted dark:text-slate-400">
+      <span>기록: <span id="rt-list" class="font-mono text-heading dark:text-white">-</span></span>
+      <span class="ml-auto">최고 평균 <strong id="rt-best" class="text-heading dark:text-white">-</strong></span>
+    </div>
+  </div>
+
+  <h2>측정 방법</h2>
+  <ol>
+    <li>보라색 화면을 누르면 시작합니다.</li>
+    <li>화면이 <strong>빨간색</strong>이 되면 기다리세요. 1.5~4.5초 뒤 무작위로 바뀝니다.</li>
+    <li><strong>초록색</strong>이 되는 순간 최대한 빨리 누르세요. PC는 스페이스바도 됩니다.</li>
+    <li>5번 재면 평균이 나옵니다. 가장 좋은 평균은 최고 기록으로 남아요.</li>
+  </ol>
+
+  <h2>반응속도를 재 보면 재미있는 점</h2>
+  <ul>
+    <li>
+      <strong>첫 번째가 가장 느린 경우가 많아요.</strong> 손이 풀리고 집중이 붙으면서 두세 번째부터 빨라지는 경우가 흔합니다.
+    </li>
+    <li>
+      <strong>피곤하면 바로 티가 납니다.</strong> 아침, 점심 먹고 난 뒤, 늦은 밤에 각각 재 보면 차이가 꽤 날 수 있어요.
+    </li>
+    <li>
+      <strong>기기 차이도 있어요.</strong> 화면 주사율이 높은 휴대폰이나 게이밍 모니터에서는 같은 사람도 기록이 조금 더 빠르게
+      나올 수 있습니다.
+    </li>
+  </ul>
+</GameLayout>
+
+<script>
+  const KEY = 'zin-reaction-v1';
+  const ROUNDS = 5;
+  const $ = (id: string) => document.getElementById(id)!;
+  const box = $('rt-box');
+  const big = $('rt-big');
+  const small = $('rt-small');
+  const listEl = $('rt-list');
+  const bestEl = $('rt-best');
+
+  type State = 'idle' | 'wait' | 'go' | 'result' | 'early' | 'done';
+  let state: State = 'idle';
+  let goAt = 0;
+  let waitTimer = 0;
+  let times: number[] = [];
+  let best = 0;
+  let lockUntil = 0;
+
+  try {
+    best = Number(localStorage.getItem(KEY)) || 0;
+  } catch {
+    /* 무시 */
+  }
+  const showBest = () => (bestEl.textContent = best ? `${best}ms` : '-');
+  showBest();
+
+  function set(bg: string, b: string, s: string) {
+    box.style.background = bg;
+    big.textContent = b;
+    small.textContent = s;
+  }
+
+  function startWait() {
+    state = 'wait';
+    set('#dc2626', '기다리세요…', '초록색이 되면 누르세요');
+    const delay = 1500 + Math.random() * 3000;
+    waitTimer = window.setTimeout(() => {
+      state = 'go';
+      goAt = performance.now();
+      set('#16a34a', '지금!', '');
+    }, delay);
+  }
+
+  function hit(stamp: number) {
+    const now = performance.now();
+    if (now < lockUntil) return;
+    if (state === 'idle' || state === 'done') {
+      times = [];
+      listEl.textContent = '-';
+      startWait();
+    } else if (state === 'wait') {
+      clearTimeout(waitTimer);
+      state = 'early';
+      set('#f59e0b', '너무 빨랐어요!', '눌러서 이번 회차를 다시 해요');
+      lockUntil = now + 400;
+    } else if (state === 'go') {
+      // 이벤트가 만들어진 시각을 써서 처리 지연을 줄인다
+      const t = Math.max(1, Math.round((stamp || now) - goAt));
+      times.push(t);
+      listEl.textContent = times.map((v) => `${v}`).join(' · ') + ' ms';
+      lockUntil = now + 400;
+      if (times.length >= ROUNDS) {
+        const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+        const record = !best || avg < best;
+        if (record) {
+          best = avg;
+          try {
+            localStorage.setItem(KEY, String(best));
+          } catch {
+            /* 무시 */
+          }
+          showBest();
+        }
+        state = 'done';
+        set(
+          '#4f46e5',
+          `평균 ${avg}ms`,
+          `${record ? '🎉 최고 기록! ' : ''}가장 빠른 ${Math.min(...times)}ms · 눌러서 다시`
+        );
+      } else {
+        state = 'result';
+        set('#4f46e5', `${t}ms`, `${times.length}/${ROUNDS} · 눌러서 다음`);
+      }
+    } else if (state === 'result' || state === 'early') {
+      startWait();
+    }
+  }
+
+  box.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    hit(e.timeStamp);
+  });
+  // 키보드: 스페이스바/엔터
+  document.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    if (e.key !== ' ' && e.key !== 'Enter') return;
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.target !== box && e.target !== document.body) return;
+    e.preventDefault();
+    hit(e.timeStamp);
+  });
+  // 버튼 click(키보드 엔터 포함)이 pointerdown과 겹치지 않도록 막는다
+  box.addEventListener('click', (e) => e.preventDefault());
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && (state === 'wait' || state === 'go')) {
+      clearTimeout(waitTimer);
+      state = 'early';
+      set('#f59e0b', '잠깐 멈췄어요', '눌러서 이번 회차를 다시 해요');
+    }
+  });
+</script>

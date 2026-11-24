@@ -112,3 +112,50 @@ const schema = [
     </div>
   </section>
 </Layout>
+
+<style is:global>
+  .mg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    border-radius: 9999px;
+    border: 1px solid rgb(203 213 225);
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background: #fff;
+    color: #0f172a;
+    touch-action: manipulation;
+  }
+  .mg-btn:disabled {
+    opacity: 0.45;
+  }
+  .mg-btn[aria-pressed='true'],
+  .mg-btn.mg-primary {
+    background: rgb(79 70 229);
+    border-color: rgb(79 70 229);
+    color: #fff;
+  }
+  .mg-input {
+    width: 100%;
+    border-radius: 0.6rem;
+    border: 1px solid rgb(203 213 225);
+    padding: 0.45rem 0.6rem;
+    background: #fff;
+    color: #0f172a;
+    font-size: 1rem;
+  }
+  .dark .mg-btn,
+  .dark .mg-input {
+    background: rgb(30 41 59);
+    border-color: rgb(71 85 105);
+    color: #f1f5f9;
+  }
+  .dark .mg-btn[aria-pressed='true'],
+  .dark .mg-btn.mg-primary {
+    background: rgb(99 102 241);
+    border-color: rgb(99 102 241);
+    color: #fff;
+  }
+</style>
