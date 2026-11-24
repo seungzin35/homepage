@@ -1,0 +1,566 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '오늘의 문제는 언제 바뀌나요?',
+    a: '한국 시간 자정에 바뀝니다. 같은 날 같은 난이도를 고르면 누구나 같은 문제를 풉니다.',
+  },
+  {
+    q: '풀던 문제가 사라지나요?',
+    a: '오늘의 문제는 푸는 중간 상태가 브라우저에 저장돼서, 창을 닫았다 다시 열어도 이어서 풀 수 있습니다. 다음 날이 되면 새 문제로 바뀝니다.',
+  },
+  {
+    q: '틀린 칸을 알려 주나요?',
+    a: '같은 줄, 같은 칸, 같은 3×3 상자에 숫자가 겹치면 빨간색으로 표시합니다. 정답과 비교해서 알려 주지는 않아서, 추리하는 재미는 그대로 남습니다.',
+  },
+  {
+    q: '메모는 어떻게 하나요?',
+    a: '메모 버튼을 켜고 숫자를 누르면 칸에 작은 후보 숫자가 적힙니다. 같은 숫자를 다시 누르면 지워집니다.',
+  },
+];
+---
+
+<GameLayout
+  slug="sudoku"
+  title="스도쿠 무료 — 매일 새 문제 (쉬움·보통·어려움)"
+  description="설치 없이 바로 푸는 무료 스도쿠. 매일 자정 새 문제가 나오고, 난이도 3단계와 메모, 겹치는 숫자 표시, 최고 기록 저장을 지원합니다. 휴대폰과 PC 모두 됩니다."
+  heading="🔢 스도쿠 — 오늘의 문제"
+  lead="가로줄, 세로줄, 3×3 상자마다 1부터 9까지 한 번씩만 들어가게 채우세요."
+  faqs={faqs}
+>
+  <div slot="game" id="sdk-app" class="select-none">
+    <div class="flex flex-wrap items-center gap-2" role="group" aria-label="난이도">
+      <button type="button" class="sdk-pill" data-level="easy">쉬움</button>
+      <button type="button" class="sdk-pill" data-level="normal">보통</button>
+      <button type="button" class="sdk-pill" data-level="hard">어려움</button>
+      <span id="sdk-timer" class="ml-auto font-mono text-lg text-heading dark:text-white">00:00</span>
+    </div>
+    <p id="sdk-status" class="mt-3 min-h-[1.5rem] font-semibold text-heading dark:text-white" aria-live="polite"></p>
+    <div id="sdk-grid" class="sdk-grid mt-2" role="grid" aria-label="스도쿠 판"></div>
+    <div class="sdk-pad mt-3" id="sdk-pad">
+      <button type="button" data-n="1">1</button><button type="button" data-n="2">2</button><button
+        type="button"
+        data-n="3">3</button
+      ><button type="button" data-n="4">4</button><button type="button" data-n="5">5</button><button
+        type="button"
+        data-n="6">6</button
+      ><button type="button" data-n="7">7</button><button type="button" data-n="8">8</button><button
+        type="button"
+        data-n="9">9</button
+      >
+    </div>
+    <div class="mt-2 flex flex-wrap items-center gap-2">
+      <button type="button" id="sdk-memo" class="sdk-pill">✏️ 메모 끔</button>
+      <button type="button" id="sdk-erase" class="sdk-pill">⌫ 지우기</button>
+      <button type="button" id="sdk-practice" class="sdk-pill">🎲 연습 문제</button>
+      <button type="button" id="sdk-daily" class="sdk-pill">📅 오늘의 문제</button>
+    </div>
+    <p id="sdk-best" class="mt-3 text-sm text-muted dark:text-slate-400"></p>
+  </div>
+
+  <h2>스도쿠 규칙</h2>
+  <ol>
+    <li>9×9 판의 빈칸에 1부터 9까지 숫자를 넣습니다.</li>
+    <li>가로 한 줄에는 1~9가 한 번씩만 들어갑니다.</li>
+    <li>세로 한 줄에도 1~9가 한 번씩만 들어갑니다.</li>
+    <li>굵은 선으로 나뉜 3×3 상자 안에도 1~9가 한 번씩만 들어갑니다.</li>
+  </ol>
+  <p>모든 문제는 답이 딱 하나만 나오도록 만들어집니다. 찍지 않고 추리만으로 끝까지 풀 수 있어요.</p>
+
+  <h2>조작 방법</h2>
+  <ul>
+    <li>
+      칸을 누른 뒤 아래 숫자판을 누르면 숫자가 들어갑니다. PC에서는 키보드 숫자와 방향키, 지우기(Backspace)도 됩니다.
+    </li>
+    <li>칸을 누르면 같은 숫자가 모두 강조돼서, 어디에 그 숫자가 이미 있는지 한눈에 보여요.</li>
+    <li><strong>메모</strong>를 켜면 후보 숫자를 작게 적어 둘 수 있습니다.</li>
+    <li>
+      <strong>연습 문제</strong>는 누를 때마다 새 문제가 나오고, <strong>오늘의 문제</strong>로 돌아오면 풀던 상태가
+      그대로 있어요.
+    </li>
+  </ul>
+
+  <h2>막혔을 때 쓰는 요령</h2>
+  <ul>
+    <li>
+      <strong>숫자 하나씩 훑기:</strong> 예를 들어 "5"가 이미 들어간 줄과 상자를 지우고 나면, 남은 자리가 하나뿐인 상자가
+      보입니다.
+    </li>
+    <li>
+      <strong>빈칸 하나에서 후보 줄이기:</strong> 그 칸의 가로·세로·상자에 이미 있는 숫자를 빼면 남는 후보가 하나일 때가 있어요.
+    </li>
+    <li>
+      <strong>짝 찾기:</strong> 한 상자에서 두 칸에만 들어갈 수 있는 숫자 두 개가 있으면, 그 상자의 다른 칸에서는 두 숫자를
+      지워도 됩니다.
+    </li>
+    <li>
+      <strong>메모를 아끼지 말기:</strong> 어려움 단계는 메모 없이 머리로만 풀기 어렵습니다. 후보를 적어 두면 실수가 크게
+      줄어요.
+    </li>
+  </ul>
+</GameLayout>
+
+<style is:global>
+  .sdk-pill {
+    border-radius: 9999px;
+    border: 1px solid rgb(203 213 225);
+    padding: 0.4rem 0.9rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .sdk-pill[aria-pressed='true'] {
+    background: rgb(79 70 229);
+    border-color: rgb(79 70 229);
+    color: #fff;
+  }
+  .sdk-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 1;
+    border: 2px solid #334155;
+    background: #fff;
+  }
+  .sdk-grid button {
+    position: relative;
+    border: 1px solid #cbd5e1;
+    font-size: clamp(1rem, 5vw, 1.6rem);
+    line-height: 1;
+    color: #4338ca;
+    background: #fff;
+    padding: 0;
+  }
+  .sdk-grid button.given {
+    color: #0f172a;
+    font-weight: 700;
+  }
+  .sdk-grid button.bx-r {
+    border-right: 2px solid #334155;
+  }
+  .sdk-grid button.bx-b {
+    border-bottom: 2px solid #334155;
+  }
+  .sdk-grid button.peer {
+    background: #eef2ff;
+  }
+  .sdk-grid button.same {
+    background: #c7d2fe;
+  }
+  .sdk-grid button.sel {
+    background: #a5b4fc;
+  }
+  .sdk-grid button.bad {
+    color: #dc2626;
+  }
+  .sdk-grid button .memo {
+    position: absolute;
+    inset: 2px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    font-size: clamp(0.45rem, 2vw, 0.7rem);
+    color: #64748b;
+    font-weight: 400;
+  }
+  .sdk-pad {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 4px;
+    max-width: 480px;
+  }
+  .sdk-pad button {
+    border: 1px solid rgb(203 213 225);
+    border-radius: 0.5rem;
+    padding: 0.6rem 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .sdk-pad button.done {
+    opacity: 0.3;
+  }
+</style>
+
+<script>
+  type Level = 'easy' | 'normal' | 'hard';
+  const LEVEL_NAME: Record<Level, string> = { easy: '쉬움', normal: '보통', hard: '어려움' };
+  const TARGET_CLUES: Record<Level, number> = { easy: 40, normal: 32, hard: 26 };
+  const STORE = 'zin-sudoku-v1';
+
+  const gridEl = document.getElementById('sdk-grid')!;
+  const statusEl = document.getElementById('sdk-status')!;
+  const timerEl = document.getElementById('sdk-timer')!;
+  const bestEl = document.getElementById('sdk-best')!;
+  const memoBtn = document.getElementById('sdk-memo')!;
+  const levelBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('#sdk-app [data-level]'));
+  const padBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('#sdk-pad [data-n]'));
+
+  // ---------- 퍼즐 만들기 ----------
+  function rng(seed: number) {
+    return () => {
+      seed |= 0;
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hash(s: string) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+    return h >>> 0;
+  }
+  function shuffle<T>(a: T[], r: () => number) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(r() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  const box = (i: number) => Math.floor(Math.floor(i / 9) / 3) * 3 + Math.floor((i % 9) / 3);
+
+  function countSolutions(g: number[], limit: number): number {
+    const rows = new Array(9).fill(0),
+      cols = new Array(9).fill(0),
+      boxes = new Array(9).fill(0);
+    for (let i = 0; i < 81; i++)
+      if (g[i]) {
+        const b = 1 << g[i];
+        rows[Math.floor(i / 9)] |= b;
+        cols[i % 9] |= b;
+        boxes[box(i)] |= b;
+      }
+    let count = 0;
+    const solve = (): void => {
+      let best = -1,
+        bestMask = 0,
+        bestCnt = 10;
+      for (let i = 0; i < 81; i++) {
+        if (g[i]) continue;
+        const used = rows[Math.floor(i / 9)] | cols[i % 9] | boxes[box(i)];
+        let cnt = 0;
+        for (let n = 1; n <= 9; n++) if (!(used & (1 << n))) cnt++;
+        if (cnt < bestCnt) {
+          bestCnt = cnt;
+          best = i;
+          bestMask = used;
+          if (cnt <= 1) break;
+        }
+      }
+      if (best < 0) {
+        count++;
+        return;
+      }
+      for (let n = 1; n <= 9 && count < limit; n++) {
+        if (bestMask & (1 << n)) continue;
+        const b = 1 << n,
+          r = Math.floor(best / 9),
+          c = best % 9,
+          x = box(best);
+        g[best] = n;
+        rows[r] |= b;
+        cols[c] |= b;
+        boxes[x] |= b;
+        solve();
+        g[best] = 0;
+        rows[r] &= ~b;
+        cols[c] &= ~b;
+        boxes[x] &= ~b;
+      }
+    };
+    solve();
+    return count;
+  }
+
+  function fullGrid(r: () => number): number[] {
+    const g = new Array(81).fill(0);
+    const fill = (i: number): boolean => {
+      if (i === 81) return true;
+      const row = Math.floor(i / 9),
+        col = i % 9;
+      for (const n of shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9], r)) {
+        let ok = true;
+        for (let k = 0; k < 9 && ok; k++) {
+          if (g[row * 9 + k] === n || g[k * 9 + col] === n) ok = false;
+        }
+        const br = row - (row % 3),
+          bc = col - (col % 3);
+        for (let y = 0; y < 3 && ok; y++)
+          for (let x = 0; x < 3 && ok; x++) if (g[(br + y) * 9 + bc + x] === n) ok = false;
+        if (!ok) continue;
+        g[i] = n;
+        if (fill(i + 1)) return true;
+        g[i] = 0;
+      }
+      return false;
+    };
+    fill(0);
+    return g;
+  }
+
+  function makePuzzle(seed: number, level: Level) {
+    const r = rng(seed);
+    const solution = fullGrid(r);
+    const puzzle = solution.slice();
+    let clues = 81;
+    for (const i of shuffle(
+      Array.from({ length: 81 }, (_, k) => k),
+      r
+    )) {
+      if (clues <= TARGET_CLUES[level]) break;
+      const keep = puzzle[i];
+      puzzle[i] = 0;
+      if (countSolutions(puzzle.slice(), 2) !== 1) puzzle[i] = keep;
+      else clues--;
+    }
+    return { puzzle, solution };
+  }
+
+  // ---------- 상태 ----------
+  function kstDate() {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(new Date());
+  }
+
+  interface Game {
+    key: string; // 'daily:2026-11-24:easy' 또는 'practice:...'
+    level: Level;
+    puzzle: number[];
+    solution: number[];
+    values: number[];
+    memos: number[]; // 비트마스크
+    elapsed: number;
+    done: boolean;
+  }
+
+  let store: { level: Level; best: Partial<Record<Level, number>>; daily: Record<string, Game> } = {
+    level: 'easy',
+    best: {},
+    daily: {},
+  };
+  try {
+    const raw = localStorage.getItem(STORE);
+    if (raw) store = { ...store, ...JSON.parse(raw) };
+  } catch {
+    /* 기록 없이 진행 */
+  }
+  function persist() {
+    try {
+      // 오늘 문제만 남겨 저장 공간을 아낀다.
+      const today = kstDate();
+      for (const k of Object.keys(store.daily)) if (!k.includes(today)) delete store.daily[k];
+      localStorage.setItem(STORE, JSON.stringify(store));
+    } catch {
+      /* 무시 */
+    }
+  }
+
+  let game: Game;
+  let sel = -1;
+  let memoMode = false;
+  let tickStart = 0;
+  let timer = 0;
+
+  function startDaily(level: Level) {
+    const today = kstDate();
+    const key = `daily:${today}:${level}`;
+    const saved = store.daily[key];
+    if (saved) game = saved;
+    else {
+      statusEl.textContent = '문제를 만드는 중…';
+      const { puzzle, solution } = makePuzzle(hash(key), level);
+      game = {
+        key,
+        level,
+        puzzle,
+        solution,
+        values: puzzle.slice(),
+        memos: new Array(81).fill(0),
+        elapsed: 0,
+        done: false,
+      };
+      store.daily[key] = game;
+    }
+    begin();
+  }
+  function startPractice(level: Level) {
+    const key = `practice:${Date.now()}:${level}`;
+    statusEl.textContent = '문제를 만드는 중…';
+    const { puzzle, solution } = makePuzzle(hash(key + Math.random()), level);
+    game = {
+      key,
+      level,
+      puzzle,
+      solution,
+      values: puzzle.slice(),
+      memos: new Array(81).fill(0),
+      elapsed: 0,
+      done: false,
+    };
+    begin();
+  }
+  function begin() {
+    store.level = game.level;
+    persist();
+    sel = -1;
+    statusEl.textContent = game.key.startsWith('daily')
+      ? `📅 오늘(${kstDate()})의 ${LEVEL_NAME[game.level]} 문제${game.done ? ' · 이미 푼 문제예요' : ''}`
+      : `🎲 ${LEVEL_NAME[game.level]} 연습 문제`;
+    tickStart = performance.now() - game.elapsed * 1000;
+    render();
+  }
+
+  const fmt = (s: number) =>
+    `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  function tick() {
+    if (game && !game.done && !document.hidden) {
+      game.elapsed = (performance.now() - tickStart) / 1000;
+      timerEl.textContent = fmt(game.elapsed);
+    }
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (!game) return;
+    if (document.hidden) persist();
+    else tickStart = performance.now() - game.elapsed * 1000;
+  });
+
+  // ---------- 화면 ----------
+  const cells: HTMLButtonElement[] = [];
+  for (let i = 0; i < 81; i++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    const r = Math.floor(i / 9),
+      c = i % 9;
+    if (c === 2 || c === 5) b.classList.add('bx-r');
+    if (r === 2 || r === 5) b.classList.add('bx-b');
+    b.setAttribute('aria-label', `${r + 1}행 ${c + 1}열`);
+    b.addEventListener('click', () => {
+      sel = i;
+      render();
+    });
+    gridEl.appendChild(b);
+    cells.push(b);
+  }
+
+  function conflicts(i: number) {
+    const v = game.values[i];
+    if (!v) return false;
+    const r = Math.floor(i / 9),
+      c = i % 9;
+    for (let k = 0; k < 81; k++) {
+      if (k === i || game.values[k] !== v) continue;
+      if (Math.floor(k / 9) === r || k % 9 === c || box(k) === box(i)) return true;
+    }
+    return false;
+  }
+
+  function render() {
+    levelBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.level === game.level)));
+    memoBtn.setAttribute('aria-pressed', String(memoMode));
+    memoBtn.textContent = memoMode ? '✏️ 메모 켬' : '✏️ 메모 끔';
+    const sv = sel >= 0 ? game.values[sel] : 0;
+    for (let i = 0; i < 81; i++) {
+      const b = cells[i];
+      const v = game.values[i];
+      b.classList.toggle('given', !!game.puzzle[i]);
+      b.classList.toggle('sel', i === sel);
+      b.classList.toggle(
+        'peer',
+        sel >= 0 && i !== sel && (Math.floor(i / 9) === Math.floor(sel / 9) || i % 9 === sel % 9 || box(i) === box(sel))
+      );
+      b.classList.toggle('same', !!sv && v === sv && i !== sel);
+      b.classList.toggle('bad', !game.puzzle[i] && conflicts(i));
+      if (v) b.textContent = String(v);
+      else if (game.memos[i]) {
+        b.innerHTML = '';
+        const m = document.createElement('span');
+        m.className = 'memo';
+        for (let n = 1; n <= 9; n++) {
+          const s = document.createElement('span');
+          s.textContent = game.memos[i] & (1 << n) ? String(n) : '';
+          m.appendChild(s);
+        }
+        b.appendChild(m);
+      } else b.textContent = '';
+    }
+    const counts = new Array(10).fill(0);
+    game.values.forEach((v) => counts[v]++);
+    padBtns.forEach((p) => p.classList.toggle('done', counts[Number(p.dataset.n)] >= 9));
+    const best = store.best[game.level];
+    bestEl.textContent = best
+      ? `${LEVEL_NAME[game.level]} 최고 기록: ${fmt(best)}`
+      : `${LEVEL_NAME[game.level]} 최고 기록: 아직 없어요`;
+    timerEl.textContent = fmt(game.elapsed);
+  }
+
+  function input(n: number) {
+    if (sel < 0 || game.done || game.puzzle[sel]) return;
+    if (memoMode && n) {
+      if (game.values[sel]) return;
+      game.memos[sel] ^= 1 << n;
+    } else {
+      game.values[sel] = game.values[sel] === n ? 0 : n;
+      if (n && game.values[sel]) {
+        // 같은 줄·열·상자의 메모에서 그 숫자를 지운다.
+        const r = Math.floor(sel / 9),
+          c = sel % 9;
+        for (let k = 0; k < 81; k++)
+          if (Math.floor(k / 9) === r || k % 9 === c || box(k) === box(sel)) game.memos[k] &= ~(1 << n);
+      }
+      if (!n) game.memos[sel] = 0;
+    }
+    checkDone();
+    render();
+    if (game.key.startsWith('daily')) persist();
+  }
+
+  function checkDone() {
+    if (game.values.some((v, i) => v !== game.solution[i])) return;
+    game.done = true;
+    tick();
+    const t = game.elapsed;
+    const prev = store.best[game.level];
+    const record = !prev || t < prev;
+    if (record) store.best[game.level] = t;
+    statusEl.textContent = `🎉 완성! ${fmt(t)}${record ? ' · 최고 기록이에요!' : ''}`;
+    persist();
+  }
+
+  padBtns.forEach((p) => p.addEventListener('click', () => input(Number(p.dataset.n))));
+  document.getElementById('sdk-erase')!.addEventListener('click', () => input(0));
+  memoBtn.addEventListener('click', () => {
+    memoMode = !memoMode;
+    render();
+  });
+  document
+    .getElementById('sdk-practice')!
+    .addEventListener('click', () => setTimeout(() => startPractice(game.level), 10));
+  document.getElementById('sdk-daily')!.addEventListener('click', () => startDaily(game.level));
+  levelBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      const lv = b.dataset.level as Level;
+      if (game.key.startsWith('practice')) setTimeout(() => startPractice(lv), 10);
+      else setTimeout(() => startDaily(lv), 10);
+    })
+  );
+  document.addEventListener('keydown', (e) => {
+    if (sel < 0 || (e.target as HTMLElement)?.tagName === 'INPUT') return;
+    if (/^[1-9]$/.test(e.key)) input(Number(e.key));
+    else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') input(0);
+    else if (e.key.startsWith('Arrow')) {
+      const r = Math.floor(sel / 9),
+        c = sel % 9;
+      const d = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
+      if (!d) return;
+      sel = ((r + d[0] + 9) % 9) * 9 + ((c + d[1] + 9) % 9);
+      e.preventDefault();
+      render();
+    } else return;
+  });
+
+  startDaily(store.level && LEVEL_NAME[store.level] ? store.level : 'easy');
+  timer = window.setInterval(tick, 500);
+  window.addEventListener('pagehide', () => {
+    clearInterval(timer);
+    if (game.key.startsWith('daily')) persist();
+  });
+</script>

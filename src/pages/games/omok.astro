@@ -1,0 +1,522 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '오목 규칙은 어떤 걸 쓰나요?',
+    a: '가로, 세로, 대각선 중 한 줄로 다섯 알 이상을 먼저 이으면 이기는 자유룰입니다. 33 금지 같은 렌주룰 제한은 없습니다.',
+  },
+  {
+    q: '휴대폰에서도 되나요?',
+    a: '됩니다. 휴대폰에서는 잘못 누르는 일을 막으려고, 한 번 누르면 놓을 자리가 표시되고 같은 자리를 한 번 더 누르면 돌이 놓입니다.',
+  },
+  {
+    q: '전적은 어디에 저장되나요?',
+    a: '난이도별 승패가 지금 쓰는 브라우저에만 저장됩니다. 서버로 보내지 않고, 브라우저 기록을 지우면 함께 지워집니다.',
+  },
+  {
+    q: '컴퓨터가 너무 세요(약해요).',
+    a: '쉬움은 가끔 실수를 하고, 어려움은 내 수를 한 수 앞까지 읽고 막습니다. 처음이라면 쉬움에서 시작해 이기면 한 단계씩 올려 보세요.',
+  },
+];
+---
+
+<GameLayout
+  slug="omok"
+  title="오목 게임 무료 — 컴퓨터와 두는 오목 (쉬움·보통·어려움)"
+  description="설치 없이 바로 하는 무료 오목 게임. 컴퓨터와 1:1로 두고, 난이도 3단계와 무르기, 전적 저장을 지원합니다. 휴대폰과 PC 모두 됩니다."
+  heading="⚫ 오목 — 컴퓨터와 한 판"
+  lead="다섯 알을 먼저 한 줄로 이으면 이겨요. 나는 흑, 컴퓨터는 백입니다."
+  faqs={faqs}
+>
+  <div slot="game" id="omok-app" class="select-none">
+    <div class="flex flex-wrap items-center gap-2" role="group" aria-label="난이도">
+      <button type="button" class="omok-level" data-level="easy">쉬움</button>
+      <button type="button" class="omok-level" data-level="normal">보통</button>
+      <button type="button" class="omok-level" data-level="hard">어려움</button>
+      <label class="ml-auto flex items-center gap-1.5 text-sm text-muted dark:text-slate-400">
+        <input type="checkbox" id="omok-second" /> 컴퓨터 먼저
+      </label>
+    </div>
+    <p id="omok-status" class="mt-3 min-h-[1.5rem] font-semibold text-heading dark:text-white" aria-live="polite"></p>
+    <canvas id="omok-board" class="mt-2 block w-full max-w-[560px] touch-none rounded-lg shadow" aria-label="오목판"
+    ></canvas>
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      <button type="button" id="omok-undo" class="omok-btn">↩ 무르기</button>
+      <button type="button" id="omok-new" class="omok-btn">새 게임</button>
+      <span id="omok-stats" class="ml-auto text-sm text-muted dark:text-slate-400"></span>
+    </div>
+  </div>
+
+  <h2>오목 게임 하는 법</h2>
+  <ol>
+    <li>위에서 난이도를 고릅니다. 처음이라면 <strong>쉬움</strong>을 추천해요.</li>
+    <li>
+      판의 빈 교차점을 눌러 흑돌을 놓습니다. 휴대폰은 한 번 눌러 자리를 확인하고, 같은 곳을 한 번 더 누르면 놓여요.
+    </li>
+    <li>컴퓨터가 바로 백돌로 응수합니다.</li>
+    <li>가로·세로·대각선으로 다섯 알을 먼저 이으면 이깁니다.</li>
+  </ol>
+  <p>
+    잘못 놓았다면 <strong>무르기</strong>로 내 수와 컴퓨터의 수를 한 번에 되돌릴 수 있어요. "컴퓨터 먼저"에 체크하고 새
+    게임을 시작하면 백으로 두는 연습도 됩니다.
+  </p>
+
+  <h2>이기는 요령</h2>
+  <ul>
+    <li>
+      <strong>열린 3을 만드세요.</strong> 양쪽이 비어 있는 세 알은 상대가 바로 막지 않으면 열린 4가 되고, 열린 4는 막을 수
+      없습니다.
+    </li>
+    <li>
+      <strong>공격이 두 갈래가 되게.</strong> 한 수로 3과 4, 또는 4와 4가 동시에 생기게 하면 상대는 한쪽밖에 못 막아요.
+    </li>
+    <li>
+      <strong>상대의 열린 3은 바로 막기.</strong> 컴퓨터도 같은 수를 노립니다. 내 공격보다 상대의 열린 3이 먼저입니다.
+    </li>
+    <li><strong>가운데에서 시작.</strong> 판 가장자리는 줄을 이을 공간이 좁아서 불리합니다.</li>
+  </ul>
+
+  <h2>난이도별 차이</h2>
+  <ul>
+    <li><strong>쉬움:</strong> 좋은 자리 몇 군데 중에서 골라 두기 때문에 가끔 허술한 수를 둡니다.</li>
+    <li><strong>보통:</strong> 공격과 수비 점수를 계산해 가장 좋은 자리에 둡니다.</li>
+    <li><strong>어려움:</strong> 보통의 계산에 더해, 자기가 둔 뒤 내가 둘 가장 아픈 수까지 따져 봅니다.</li>
+  </ul>
+</GameLayout>
+
+<style is:global>
+  .omok-level,
+  .omok-btn {
+    border-radius: 9999px;
+    border: 1px solid rgb(203 213 225);
+    padding: 0.4rem 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .omok-level[aria-pressed='true'] {
+    background: rgb(79 70 229);
+    border-color: rgb(79 70 229);
+    color: #fff;
+  }
+  .omok-btn:disabled {
+    opacity: 0.45;
+  }
+</style>
+
+<script>
+  const N = 15;
+  type Cell = 0 | 1 | 2; // 0 빈칸, 1 흑, 2 백
+  type Level = 'easy' | 'normal' | 'hard';
+
+  const canvas = document.getElementById('omok-board') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const statusEl = document.getElementById('omok-status')!;
+  const statsEl = document.getElementById('omok-stats')!;
+  const undoBtn = document.getElementById('omok-undo') as HTMLButtonElement;
+  const newBtn = document.getElementById('omok-new') as HTMLButtonElement;
+  const secondBox = document.getElementById('omok-second') as HTMLInputElement;
+  const levelBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.omok-level'));
+
+  const LEVEL_NAME: Record<Level, string> = { easy: '쉬움', normal: '보통', hard: '어려움' };
+  const STORE = 'zin-omok-v1';
+
+  let board: Cell[] = new Array(N * N).fill(0);
+  let moves: number[] = [];
+  let human: 1 | 2 = 1;
+  let level: Level = 'easy';
+  let over = false;
+  let thinking = false;
+  let winLine: number[] = [];
+  let preview = -1;
+  let stats: Record<string, { w: number; l: number }> = {};
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE);
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d.level && LEVEL_NAME[d.level as Level]) level = d.level;
+        if (d.stats) stats = d.stats;
+      }
+    } catch {
+      /* 저장소를 못 쓰면 기록 없이 진행 */
+    }
+  }
+  function save() {
+    try {
+      localStorage.setItem(STORE, JSON.stringify({ level, stats }));
+    } catch {
+      /* 무시 */
+    }
+  }
+
+  const idx = (x: number, y: number) => y * N + x;
+  const inside = (x: number, y: number) => x >= 0 && y >= 0 && x < N && y < N;
+  const DIRS = [
+    [1, 0],
+    [0, 1],
+    [1, 1],
+    [1, -1],
+  ];
+
+  function fiveAt(b: Cell[], p: number, who: Cell): number[] | null {
+    const x = p % N,
+      y = Math.floor(p / N);
+    for (const [dx, dy] of DIRS) {
+      const line = [p];
+      for (const s of [1, -1]) {
+        let cx = x + dx * s,
+          cy = y + dy * s;
+        while (inside(cx, cy) && b[idx(cx, cy)] === who) {
+          line.push(idx(cx, cy));
+          cx += dx * s;
+          cy += dy * s;
+        }
+      }
+      if (line.length >= 5) return line;
+    }
+    return null;
+  }
+
+  // 5칸 창(window) 점수: 그 칸을 포함하는 5칸 묶음 중 상대 돌이 없는 것마다, 내 돌 수에 따라 점수를 더한다.
+  const W = [0, 2, 24, 400, 9000, 1_000_000];
+  function cellScore(b: Cell[], p: number, who: Cell): number {
+    const x = p % N,
+      y = Math.floor(p / N);
+    const opp = who === 1 ? 2 : 1;
+    let total = 0;
+    for (const [dx, dy] of DIRS) {
+      let dirBest = 0;
+      let dirSum = 0;
+      for (let start = -4; start <= 0; start++) {
+        let mine = 1;
+        let blocked = false;
+        for (let k = 0; k < 5; k++) {
+          const off = start + k;
+          if (off === 0) continue;
+          const cx = x + dx * off,
+            cy = y + dy * off;
+          if (!inside(cx, cy)) {
+            blocked = true;
+            break;
+          }
+          const v = b[idx(cx, cy)];
+          if (v === opp) {
+            blocked = true;
+            break;
+          }
+          if (v === who) mine++;
+        }
+        if (!blocked) {
+          dirSum += W[mine];
+          dirBest = Math.max(dirBest, mine);
+        }
+      }
+      total += dirSum;
+      if (dirBest >= 4) total += 4000; // 4가 생기는 방향은 따로 가산
+    }
+    return total;
+  }
+
+  function candidates(b: Cell[]): number[] {
+    const out: number[] = [];
+    let any = false;
+    for (let p = 0; p < N * N; p++) {
+      if (b[p] !== 0) {
+        any = true;
+        continue;
+      }
+      const x = p % N,
+        y = Math.floor(p / N);
+      let near = false;
+      for (let dy = -2; dy <= 2 && !near; dy++)
+        for (let dx = -2; dx <= 2 && !near; dx++) {
+          if (!dx && !dy) continue;
+          const cx = x + dx,
+            cy = y + dy;
+          if (inside(cx, cy) && b[idx(cx, cy)] !== 0) near = true;
+        }
+      if (near) out.push(p);
+    }
+    if (!any) out.push(idx(7, 7));
+    return out;
+  }
+
+  function aiMove(): number {
+    const ai: Cell = human === 1 ? 2 : 1;
+    const me: Cell = human;
+    const cands = candidates(board);
+
+    // 1) 바로 이기는 수 2) 바로 지는 수 막기
+    for (const p of cands) {
+      board[p] = ai;
+      const win = fiveAt(board, p, ai);
+      board[p] = 0;
+      if (win && level !== 'easy') return p;
+      if (win && level === 'easy' && Math.random() < 0.85) return p;
+    }
+    for (const p of cands) {
+      board[p] = me;
+      const lose = fiveAt(board, p, me);
+      board[p] = 0;
+      if (lose && (level !== 'easy' || Math.random() < 0.7)) return p;
+    }
+
+    const defW = level === 'easy' ? 0.6 : level === 'normal' ? 0.9 : 1.0;
+    const scored = cands
+      .map((p) => ({ p, s: cellScore(board, p, ai) + defW * cellScore(board, p, me) + Math.random() }))
+      .sort((a, b) => b.s - a.s);
+
+    if (level === 'easy') {
+      const pool = scored.slice(0, Math.min(6, scored.length));
+      return pool[Math.floor(Math.random() * pool.length)].p;
+    }
+    if (level === 'normal') return scored[0].p;
+
+    // 어려움: 상위 후보마다 내가 둔 뒤 사람이 둘 최선의 수를 빼서 비교
+    let best = scored[0].p;
+    let bestVal = -Infinity;
+    for (const { p, s } of scored.slice(0, 10)) {
+      board[p] = ai;
+      let reply = 0;
+      for (const q of candidates(board)) {
+        const v = cellScore(board, q, me) + 0.5 * cellScore(board, q, ai);
+        if (v > reply) reply = v;
+      }
+      board[p] = 0;
+      const val = s - 0.8 * reply;
+      if (val > bestVal) {
+        bestVal = val;
+        best = p;
+      }
+    }
+    return best;
+  }
+
+  // 그리기
+  let size = 0;
+  let cell = 0;
+  let margin = 0;
+  function resize() {
+    const cssW = Math.min(canvas.parentElement!.clientWidth, 560);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssW + 'px';
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssW * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    size = cssW;
+    cell = size / (N + 1);
+    margin = cell;
+    draw();
+  }
+
+  function draw() {
+    ctx.fillStyle = '#e8c07d';
+    ctx.fillRect(0, 0, size, size);
+    ctx.strokeStyle = '#6b4a1f';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < N; i++) {
+      const v = margin + i * cell;
+      ctx.beginPath();
+      ctx.moveTo(margin, v);
+      ctx.lineTo(margin + (N - 1) * cell, v);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(v, margin);
+      ctx.lineTo(v, margin + (N - 1) * cell);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#6b4a1f';
+    for (const [sx, sy] of [
+      [3, 3],
+      [11, 3],
+      [7, 7],
+      [3, 11],
+      [11, 11],
+    ]) {
+      ctx.beginPath();
+      ctx.arc(margin + sx * cell, margin + sy * cell, Math.max(2, cell * 0.1), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    const r = cell * 0.44;
+    for (let p = 0; p < N * N; p++) {
+      if (!board[p]) continue;
+      const cx = margin + (p % N) * cell,
+        cy = margin + Math.floor(p / N) * cell;
+      const g = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.35, r * 0.1, cx, cy, r);
+      if (board[p] === 1) {
+        g.addColorStop(0, '#666');
+        g.addColorStop(1, '#111');
+      } else {
+        g.addColorStop(0, '#fff');
+        g.addColorStop(1, '#cfcfcf');
+      }
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+      if (board[p] === 2) {
+        ctx.strokeStyle = '#999';
+        ctx.stroke();
+      }
+    }
+    const last = moves[moves.length - 1];
+    if (last !== undefined) {
+      ctx.fillStyle = '#e11d48';
+      ctx.beginPath();
+      ctx.arc(margin + (last % N) * cell, margin + Math.floor(last / N) * cell, cell * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (winLine.length) {
+      ctx.strokeStyle = '#e11d48';
+      ctx.lineWidth = 3;
+      for (const p of winLine) {
+        ctx.beginPath();
+        ctx.arc(margin + (p % N) * cell, margin + Math.floor(p / N) * cell, r + 2, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+    if (preview >= 0 && !board[preview]) {
+      ctx.globalAlpha = 0.45;
+      ctx.fillStyle = human === 1 ? '#111' : '#fff';
+      ctx.beginPath();
+      ctx.arc(margin + (preview % N) * cell, margin + Math.floor(preview / N) * cell, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function renderUi() {
+    levelBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.level === level)));
+    const s = stats[level] || { w: 0, l: 0 };
+    statsEl.textContent = `${LEVEL_NAME[level]} 전적: ${s.w}승 ${s.l}패`;
+    undoBtn.disabled = thinking || moves.length < (human === 1 ? 1 : 2);
+  }
+
+  function humanToMove() {
+    return moves.length % 2 === (human === 1 ? 0 : 1);
+  }
+
+  function setStatus(t: string) {
+    statusEl.textContent = t;
+  }
+
+  function finish(winner: Cell, line: number[]) {
+    over = true;
+    winLine = line;
+    const s = (stats[level] = stats[level] || { w: 0, l: 0 });
+    if (winner === human) {
+      s.w++;
+      setStatus(`🎉 이겼어요! (${LEVEL_NAME[level]})`);
+    } else {
+      s.l++;
+      setStatus('😵 졌어요. 무르기로 되돌려 보거나 새 게임을 시작하세요.');
+    }
+    save();
+    renderUi();
+    draw();
+  }
+
+  function place(p: number, who: Cell): boolean {
+    board[p] = who;
+    moves.push(p);
+    const line = fiveAt(board, p, who);
+    if (line) {
+      finish(who, line);
+      return true;
+    }
+    if (moves.length === N * N) {
+      over = true;
+      setStatus('무승부예요. 판이 가득 찼어요.');
+      return true;
+    }
+    return false;
+  }
+
+  function computerTurn() {
+    thinking = true;
+    setStatus('컴퓨터가 생각 중…');
+    renderUi();
+    setTimeout(() => {
+      const p = aiMove();
+      const ended = place(p, human === 1 ? 2 : 1);
+      thinking = false;
+      if (!ended) setStatus('내 차례예요.');
+      renderUi();
+      draw();
+    }, 250);
+  }
+
+  function newGame() {
+    board = new Array(N * N).fill(0);
+    moves = [];
+    over = false;
+    winLine = [];
+    preview = -1;
+    human = secondBox.checked ? 2 : 1;
+    setStatus(human === 1 ? '내 차례예요. 흑을 놓으세요.' : '');
+    renderUi();
+    draw();
+    if (human === 2) computerTurn();
+  }
+
+  function pointToCell(e: PointerEvent): number {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.round((e.clientX - rect.left - margin) / cell);
+    const y = Math.round((e.clientY - rect.top - margin) / cell);
+    return inside(x, y) ? idx(x, y) : -1;
+  }
+
+  canvas.addEventListener('pointerup', (e) => {
+    if (over || thinking) return;
+    const p = pointToCell(e);
+    if (p < 0 || board[p]) return;
+    if (e.pointerType === 'touch' && preview !== p) {
+      preview = p;
+      setStatus('같은 자리를 한 번 더 누르면 놓아요.');
+      draw();
+      return;
+    }
+    preview = -1;
+    if (place(p, human)) {
+      draw();
+      return;
+    }
+    draw();
+    computerTurn();
+  });
+
+  undoBtn.addEventListener('click', () => {
+    if (thinking || moves.length < (human === 1 ? 1 : 2)) return;
+    // 내 마지막 수까지 되돌린다(그 뒤의 컴퓨터 수 포함).
+    let poppedHuman = false;
+    while (moves.length) {
+      const p = moves.pop()!;
+      if (board[p] === human) poppedHuman = true;
+      board[p] = 0;
+      if (poppedHuman && humanToMove()) break;
+    }
+    over = false;
+    winLine = [];
+    preview = -1;
+    setStatus('한 수 물렀어요. 내 차례예요.');
+    renderUi();
+    draw();
+  });
+  newBtn.addEventListener('click', newGame);
+  secondBox.addEventListener('change', newGame);
+  levelBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      level = b.dataset.level as Level;
+      save();
+      newGame();
+    })
+  );
+
+  load();
+  window.addEventListener('resize', resize);
+  resize();
+  newGame();
+</script>

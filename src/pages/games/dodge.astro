@@ -1,0 +1,409 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '왜 이름이 "암기 피하기"인가요?',
+    a: '암기(暗器)는 무협에서 몰래 던지는 작은 무기를 말합니다. 표창과 비도가 대표적이에요. 외우는 암기가 아니라, 날아오는 암기를 피하는 게임입니다.',
+  },
+  {
+    q: '휴대폰에서는 어떻게 움직이나요?',
+    a: '화면 아무 데나 손가락을 대고 끌면, 끈 방향과 거리만큼 주인공이 따라 움직입니다. 손가락이 주인공을 가리지 않아서 피하기가 수월해요.',
+  },
+  {
+    q: '얼마나 버티면 잘한 건가요?',
+    a: '처음에는 20~30초 정도가 보통입니다. 30초가 지나면 표창이 눈에 띄게 많아지고, 60초를 넘기면 "1분 돌파"로 표시됩니다.',
+  },
+  {
+    q: '기록은 어디에 저장되나요?',
+    a: '최고 기록은 지금 쓰는 브라우저에만 저장됩니다. 서버로 보내지 않아요.',
+  },
+];
+---
+
+<GameLayout
+  slug="dodge"
+  title="피하기 게임 무료 — 1분 무협 게임 「암기 피하기」"
+  description="설치 없이 바로 하는 무료 피하기 게임. 사방에서 날아오는 표창과 비도를 피해 오래 버티세요. 휴대폰은 손가락으로 끌고, PC는 방향키로 움직입니다."
+  heading="🗡️ 암기 피하기 — 1분 무협 게임"
+  lead="객잔 마당에 표창과 비도가 날아듭니다. 한 번이라도 맞으면 끝, 얼마나 버틸 수 있을까요?"
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="flex items-center gap-3 text-sm text-muted dark:text-slate-400">
+      <span>최고 기록 <strong id="dg-best" class="text-heading dark:text-white">-</strong></span>
+      <span class="ml-auto">PC: 방향키·WASD / 휴대폰: 화면을 끌기</span>
+    </div>
+    <canvas
+      id="dg-canvas"
+      class="mt-2 block w-full max-w-[420px] touch-none rounded-xl shadow"
+      aria-label="암기 피하기 게임 화면"></canvas>
+  </div>
+
+  <h2>게임 방법</h2>
+  <ol>
+    <li>화면을 누르거나 아무 키나 눌러 시작합니다.</li>
+    <li>
+      PC는 <strong>방향키</strong>나 <strong>W·A·S·D</strong>로, 휴대폰은 화면 아무 곳이나 <strong
+        >손가락으로 끌어서</strong
+      > 움직입니다.
+    </li>
+    <li>
+      사방에서 날아오는 <strong>표창</strong>(빙글빙글 도는 별)과 위에서 곧장 떨어지는 <strong>비도</strong>(날이 긴
+      칼)를 피하세요.
+    </li>
+    <li>한 번이라도 맞으면 끝납니다. 버틴 시간이 점수예요.</li>
+  </ol>
+
+  <h2>오래 버티는 요령</h2>
+  <ul>
+    <li><strong>가운데 아래쪽에 자리 잡기.</strong> 구석은 도망갈 길이 한쪽뿐이라 위험합니다.</li>
+    <li>
+      <strong>표창은 던질 때의 내 위치를 노립니다.</strong> 계속 조금씩 움직이면 대부분 옆으로 비껴갑니다. 가만히 서 있는
+      게 가장 위험해요.
+    </li>
+    <li><strong>비도는 그림자를 보세요.</strong> 비도가 떨어지기 직전, 화면 위쪽 끝에 빨간 표시가 먼저 나타납니다.</li>
+    <li>
+      <strong>크게 움직이지 말기.</strong> 급하게 크게 피하면 다른 표창에 부딪히기 쉽습니다. 짧게, 자주 움직이는 쪽이 오래
+      버텨요.
+    </li>
+  </ul>
+
+  <h2>이 게임을 만든 이유</h2>
+  <p>
+    ZIN 노트에서는 무협 RPG 「청석진」을 만들고 있어요. 그 게임 속 객잔 앞마당을 떠올리며, 짧은 시간에 가볍게 즐길 수
+    있는 무협 게임을 하나 따로 만들어 봤습니다. 주인공도 청석진의 점소이처럼 그렸어요.
+  </p>
+</GameLayout>
+
+<script>
+  const W = 360,
+    H = 520;
+  const canvas = document.getElementById('dg-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const bestEl = document.getElementById('dg-best')!;
+  const STORE = 'zin-dodge-v1';
+
+  let best = 0;
+  try {
+    best = Number(localStorage.getItem(STORE)) || 0;
+  } catch {
+    /* 무시 */
+  }
+  const showBest = () => (bestEl.textContent = best ? `${best.toFixed(1)}초` : '-');
+  showBest();
+
+  function resize() {
+    const cssW = Math.min(canvas.parentElement!.clientWidth, 420);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = (cssW * H) / W + 'px';
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(((cssW * H) / W) * dpr);
+    ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+    if (state !== 'play') draw();
+  }
+
+  type Shot = {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    r: number;
+    kind: 'star' | 'knife';
+    rot: number;
+    warn: number;
+  };
+  let state: 'ready' | 'play' | 'over' = 'ready';
+  let px = W / 2,
+    py = H * 0.75;
+  const PR = 11;
+  let shots: Shot[] = [];
+  let t = 0;
+  let spawnAcc = 0;
+  let knifeAcc = 0;
+  let last = 0;
+  let newRecord = false;
+  let overAt = 0;
+  const keys = new Set<string>();
+
+  function reset() {
+    px = W / 2;
+    py = H * 0.75;
+    shots = [];
+    t = 0;
+    spawnAcc = 0;
+    knifeAcc = 0;
+    newRecord = false;
+  }
+
+  function spawnStar() {
+    const side = Math.floor(Math.random() * 3); // 0 위, 1 왼쪽, 2 오른쪽
+    let x: number, y: number;
+    if (side === 0) {
+      x = Math.random() * W;
+      y = -12;
+    } else if (side === 1) {
+      x = -12;
+      y = Math.random() * H * 0.7;
+    } else {
+      x = W + 12;
+      y = Math.random() * H * 0.7;
+    }
+    const speed = 100 + Math.min(t, 60) * 3.3 + Math.random() * 40;
+    const spread = Math.max(0.35, 1.1 - t * 0.025);
+    const ang = Math.atan2(py - y, px - x) + (Math.random() - 0.5) * spread;
+    shots.push({ x, y, vx: Math.cos(ang) * speed, vy: Math.sin(ang) * speed, r: 7, kind: 'star', rot: 0, warn: 0 });
+  }
+  function spawnKnife() {
+    const x = 20 + Math.random() * (W - 40);
+    shots.push({ x, y: -30, vx: 0, vy: 0, r: 6, kind: 'knife', rot: 0, warn: 0.7 });
+  }
+
+  function update(dt: number) {
+    t += dt;
+    // 이동
+    const sp = 230;
+    let dx = 0,
+      dy = 0;
+    if (keys.has('ArrowLeft') || keys.has('a')) dx -= 1;
+    if (keys.has('ArrowRight') || keys.has('d')) dx += 1;
+    if (keys.has('ArrowUp') || keys.has('w')) dy -= 1;
+    if (keys.has('ArrowDown') || keys.has('s')) dy += 1;
+    if (dx || dy) {
+      const l = Math.hypot(dx, dy);
+      px += (dx / l) * sp * dt;
+      py += (dy / l) * sp * dt;
+    }
+    px = Math.max(PR, Math.min(W - PR, px));
+    py = Math.max(PR, Math.min(H - PR, py));
+
+    // 생성: 시간이 지날수록 빨라진다
+    const interval = Math.max(0.16, 0.95 - t * 0.014);
+    spawnAcc += dt;
+    while (spawnAcc > interval) {
+      spawnAcc -= interval;
+      spawnStar();
+    }
+    if (t > 8) {
+      knifeAcc += dt;
+      const kInt = Math.max(0.7, 2.2 - t * 0.025);
+      if (knifeAcc > kInt) {
+        knifeAcc = 0;
+        spawnKnife();
+      }
+    }
+
+    for (const s of shots) {
+      if (s.kind === 'knife' && s.warn > 0) {
+        s.warn -= dt;
+        if (s.warn <= 0) s.vy = 380 + Math.min(t, 60) * 4;
+        continue;
+      }
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      s.rot += dt * 14;
+      // 맞았는지
+      if (s.kind === 'star') {
+        if (Math.hypot(s.x - px, s.y - py) < s.r + PR - 3) return gameOver();
+      } else {
+        // 비도: 세로로 긴 칼날
+        if (Math.abs(s.x - px) < PR - 2 + 3 && py > s.y - 22 - PR + 3 && py < s.y + 22 + PR - 3) return gameOver();
+      }
+    }
+    shots = shots.filter((s) => s.x > -40 && s.x < W + 40 && s.y > -60 && s.y < H + 60);
+  }
+
+  function gameOver() {
+    state = 'over';
+    overAt = performance.now();
+    if (t > best) {
+      best = t;
+      newRecord = true;
+      try {
+        localStorage.setItem(STORE, String(best));
+      } catch {
+        /* 무시 */
+      }
+      showBest();
+    }
+    draw();
+  }
+
+  function drawStar(s: Shot) {
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.rotate(s.rot);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const rr = i % 2 === 0 ? s.r + 3 : s.r * 0.35;
+      const a = (i * Math.PI) / 4;
+      ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+  function drawKnife(s: Shot) {
+    if (s.warn > 0) {
+      ctx.fillStyle = `rgba(220,38,38,${0.35 + 0.35 * Math.sin(s.warn * 30)})`;
+      ctx.beginPath();
+      ctx.moveTo(s.x - 9, 0);
+      ctx.lineTo(s.x + 9, 0);
+      ctx.lineTo(s.x, 16);
+      ctx.closePath();
+      ctx.fill();
+      return;
+    }
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.strokeStyle = '#334155';
+    ctx.beginPath();
+    ctx.moveTo(0, 24);
+    ctx.lineTo(4, 4);
+    ctx.lineTo(-4, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#7c2d12';
+    ctx.fillRect(-2, -18, 4, 22);
+    ctx.fillStyle = '#b91c1c';
+    ctx.fillRect(-6, 3, 12, 3);
+    ctx.restore();
+  }
+  function drawPlayer() {
+    // 점소이: 얼굴, 두건, 파란 옷
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath();
+    ctx.ellipse(0, PR + 2, PR, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#2563eb';
+    ctx.beginPath();
+    ctx.arc(0, 3, PR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fcd9b6';
+    ctx.beginPath();
+    ctx.arc(0, -5, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-7, -13, 14, 4);
+    ctx.fillRect(-3, -3, 2, 2);
+    ctx.fillRect(2, -3, 2, 2);
+    ctx.restore();
+  }
+
+  function draw() {
+    // 마당 바닥
+    ctx.fillStyle = '#d6c7a1';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(120,100,60,0.18)';
+    for (let y = 40; y < H; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+    for (const s of shots) s.kind === 'star' ? drawStar(s) : drawKnife(s);
+    drawPlayer();
+
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 22px system-ui, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${t.toFixed(1)}초`, 12, 30);
+    if (t >= 60) {
+      ctx.fillStyle = '#b45309';
+      ctx.font = 'bold 15px system-ui, sans-serif';
+      ctx.fillText('🏅 1분 돌파!', 12, 52);
+    }
+
+    if (state !== 'play') {
+      ctx.fillStyle = 'rgba(15,23,42,0.6)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      if (state === 'ready') {
+        ctx.font = 'bold 30px system-ui, sans-serif';
+        ctx.fillText('암기 피하기', W / 2, H / 2 - 30);
+        ctx.font = '16px system-ui, sans-serif';
+        ctx.fillText('화면을 누르거나 아무 키나 눌러 시작', W / 2, H / 2 + 10);
+      } else {
+        ctx.font = 'bold 28px system-ui, sans-serif';
+        ctx.fillText(`${t.toFixed(1)}초 버텼어요`, W / 2, H / 2 - 30);
+        ctx.font = '16px system-ui, sans-serif';
+        ctx.fillText(newRecord ? '🎉 최고 기록!' : `최고 기록 ${best.toFixed(1)}초`, W / 2, H / 2 + 4);
+        ctx.fillText('다시 하려면 화면을 누르세요', W / 2, H / 2 + 34);
+      }
+    }
+  }
+
+  function loop(now: number) {
+    if (state !== 'play') return;
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    update(dt);
+    draw();
+    if (state === 'play') requestAnimationFrame(loop);
+  }
+
+  function start() {
+    if (state === 'play') return;
+    if (state === 'over' && performance.now() - overAt < 600) return; // 연타로 바로 재시작되는 것 방지
+    reset();
+    state = 'play';
+    last = performance.now();
+    requestAnimationFrame(loop);
+  }
+  // 입력
+  window.addEventListener('keydown', (e) => {
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(k) && document.activeElement === document.body)
+      e.preventDefault();
+    if (state !== 'play') {
+      if (document.activeElement && document.activeElement !== document.body) return;
+      if (state === 'over' && performance.now() - overAt < 600) return;
+      start();
+    }
+    keys.add(k);
+  });
+  window.addEventListener('keyup', (e) => keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key));
+  window.addEventListener('blur', () => keys.clear());
+
+  let drag: { id: number; sx: number; sy: number; ox: number; oy: number } | null = null;
+  const toGame = (e: PointerEvent) => {
+    const r = canvas.getBoundingClientRect();
+    return { x: ((e.clientX - r.left) / r.width) * W, y: ((e.clientY - r.top) / r.height) * H };
+  };
+  canvas.addEventListener('pointerdown', (e) => {
+    if (state !== 'play') {
+      start();
+      if ((state as string) !== 'play') return;
+    }
+    const p = toGame(e);
+    drag = { id: e.pointerId, sx: p.x, sy: p.y, ox: px, oy: py };
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id || state !== 'play') return;
+    const p = toGame(e);
+    px = Math.max(PR, Math.min(W - PR, drag.ox + (p.x - drag.sx) * 1.2));
+    py = Math.max(PR, Math.min(H - PR, drag.oy + (p.y - drag.sy) * 1.2));
+  });
+  const endDrag = () => (drag = null);
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && state === 'play') gameOver();
+  });
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+</script>

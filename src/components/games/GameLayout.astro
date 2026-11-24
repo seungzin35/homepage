@@ -1,0 +1,114 @@
+---
+// 미니게임 한 판짜리 페이지의 공통 틀: 제목, 게임 영역(slot "game"), 설명 글(기본 slot),
+// 자주 묻는 질문(FAQPage 구조화 데이터 포함), 다른 게임 링크.
+import Layout from '~/layouts/PageLayout.astro';
+import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
+import StructuredData from '~/components/common/StructuredData.astro';
+import { miniGames } from '~/data/minigames';
+import { getCanonical, getPermalink } from '~/utils/permalinks';
+
+export interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  heading: string;
+  lead: string;
+  faqs: Array<{ q: string; a: string }>;
+}
+
+const { slug, title, description, heading, lead, faqs } = Astro.props;
+const game = miniGames.find((g) => g.slug === slug);
+const others = miniGames.filter((g) => g.slug !== slug);
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'VideoGame',
+    name: game?.name ?? heading,
+    description,
+    url: String(getCanonical(getPermalink(`/games/${slug}`))),
+    inLanguage: 'ko',
+    gamePlatform: ['Web browser', 'Mobile web'],
+    isAccessibleForFree: true,
+    genre: game?.tags ?? [],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  },
+];
+---
+
+<Layout metadata={{ title, description }}>
+  <StructuredData slot="head" schema={schema} />
+  <Breadcrumbs
+    bar
+    items={[
+      { text: '홈', href: getPermalink('/') },
+      { text: '미니게임', href: getPermalink('/games') },
+      { text: game?.name ?? heading },
+    ]}
+  />
+  <section class="mx-auto max-w-3xl px-4 pb-16 pt-6 sm:px-6">
+    <h1 class="font-heading text-3xl font-bold leading-tight tracking-tight text-heading md:text-4xl dark:text-white">
+      {heading}
+    </h1>
+    <p class="mt-3 text-muted dark:text-slate-400">{lead}</p>
+
+    <div class="mt-6">
+      <slot name="game" />
+    </div>
+
+    <div class="prose prose-lg mt-12 max-w-none dark:prose-invert">
+      <slot />
+
+      <h2>자주 묻는 질문</h2>
+      {
+        faqs.map(({ q, a }) => (
+          <>
+            <h3>{q}</h3>
+            <p>{a}</p>
+          </>
+        ))
+      }
+    </div>
+
+    <div class="mt-12 rounded-2xl border border-gray-200 p-5 dark:border-slate-800">
+      <p class="font-bold text-heading dark:text-white">다른 미니게임도 해 보세요</p>
+      <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+        {
+          others.map((g) => (
+            <li>
+              <a
+                href={getPermalink(`/games/${g.slug}`)}
+                class="flex items-start gap-3 rounded-xl border border-gray-200 p-4 transition hover:border-primary dark:border-slate-700 dark:hover:border-indigo-400"
+              >
+                <span class="text-2xl" aria-hidden="true">
+                  {g.icon}
+                </span>
+                <span>
+                  <span class="block font-bold text-heading dark:text-white">{g.name}</span>
+                  <span class="block text-sm text-muted dark:text-slate-400">{g.summary}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-4 text-sm text-muted dark:text-slate-400">
+        조금 더 긴 게임이 궁금하다면, 직접 만들고 있는 무협 RPG 데모
+        <a
+          class="text-primary underline dark:text-indigo-300"
+          href="https://zinnote.itch.io/cheongseok-demo"
+          target="_blank"
+          rel="noopener">「청석진」</a
+        >도 브라우저에서 바로 해 볼 수 있어요.
+      </p>
+    </div>
+  </section>
+</Layout>

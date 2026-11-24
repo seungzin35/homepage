@@ -54,6 +54,10 @@ export const headerData = {
       links: gameCategories.map(({ text, href }) => ({ text, href })),
     },
     {
+      text: '미니게임',
+      href: getPermalink('/games'),
+    },
+    {
       text: '소개',
       href: getPermalink('/about'),
     },
@@ -70,6 +74,7 @@ export const footerData = {
     {
       title: '사이트',
       links: [
+        { text: '미니게임', href: getPermalink('/games') },
         { text: '소개', href: getPermalink('/about') },
         { text: 'RSS 구독', href: getAsset('/rss.xml') },
       ],
