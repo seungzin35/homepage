@@ -105,6 +105,7 @@ PC의 날짜와 시간이 틀어져 있어도 업데이트가 실패할 수 있�
 
 ## 함께 보면 좋은 글
 
+- [윈도우 11 화면 밝기 조절이 안 될 때 (밝기 슬라이더가 없거나 저절로 바뀔 때)](/windows-11-brightness-not-working)
 - [프린터가 오프라인으로 뜰 때 해결 방법 (윈도우 11)](/printer-offline-fix)
 
 _참고: Microsoft 지원 "Windows 업데이트 문제 해결"_
