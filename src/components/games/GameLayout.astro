@@ -18,7 +18,9 @@ export interface Props {
 
 const { slug, title, description, heading, lead, faqs } = Astro.props;
 const game = miniGames.find((g) => g.slug === slug);
-const others = miniGames.filter((g) => g.slug !== slug);
+// 같은 종류 게임은 카드로 먼저, 나머지는 작은 링크로
+const sameGroup = miniGames.filter((g) => g.slug !== slug && g.group === game?.group);
+const restGames = miniGames.filter((g) => g.slug !== slug && g.group !== game?.group);
 
 const schema = [
   {
@@ -79,10 +81,10 @@ const schema = [
     </div>
 
     <div class="mt-12 rounded-2xl border border-gray-200 p-5 dark:border-slate-800">
-      <p class="font-bold text-heading dark:text-white">다른 미니게임도 해 보세요</p>
+      <p class="font-bold text-heading dark:text-white">비슷한 게임도 해 보세요</p>
       <ul class="mt-3 grid gap-3 sm:grid-cols-2">
         {
-          others.map((g) => (
+          sameGroup.map((g) => (
             <li>
               <a
                 href={getPermalink(`/games/${g.slug}`)}
@@ -99,6 +101,29 @@ const schema = [
             </li>
           ))
         }
+      </ul>
+      <p class="mt-6 font-bold text-heading dark:text-white">다른 미니게임</p>
+      <ul class="mt-3 flex flex-wrap gap-2">
+        {
+          restGames.map((g) => (
+            <li>
+              <a
+                href={getPermalink(`/games/${g.slug}`)}
+                class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-sm font-semibold text-heading transition hover:border-primary dark:border-slate-700 dark:text-white dark:hover:border-indigo-400"
+              >
+                <span aria-hidden="true">{g.icon}</span>
+                {g.name}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a
+            href={getPermalink('/games')}
+            class="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-primary dark:bg-slate-800 dark:text-indigo-300"
+            >전체 목록 →</a
+          >
+        </li>
       </ul>
       <p class="mt-4 text-sm text-muted dark:text-slate-400">
         조금 더 긴 게임이 궁금하다면, 직접 만들고 있는 무협 RPG 데모
@@ -127,6 +152,10 @@ const schema = [
     background: #fff;
     color: #0f172a;
     touch-action: manipulation;
+  }
+  .mg-btn.hidden,
+  .mg-key.hidden {
+    display: none;
   }
   .mg-btn:disabled {
     opacity: 0.45;

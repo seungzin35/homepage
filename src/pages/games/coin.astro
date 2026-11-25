@@ -1,0 +1,197 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '앞면과 뒷면이 정말 반반으로 나오나요?',
+    a: '브라우저의 난수 함수(crypto.getRandomValues)로 앞면과 뒷면을 똑같은 확률로 뽑습니다. 다만 열 번쯤 던지면 7:3처럼 한쪽으로 쏠리는 일은 흔해요. 많이 던질수록 50%에 가까워집니다.',
+  },
+  {
+    q: '앞면이 계속 나왔으면 다음엔 뒷면이 나올 확률이 높지 않나요?',
+    a: '아니요. 동전은 이전 결과를 기억하지 않아서, 앞면이 다섯 번 연속 나왔어도 다음 한 번은 여전히 반반입니다. 이걸 "도박사의 오류"라고 불러요.',
+  },
+  {
+    q: '앞면, 뒷면 말고 다른 이름으로 바꿀 수 있나요?',
+    a: '네. 아래 칸에 "짜장/짬뽕"처럼 두 가지를 적으면 동전 양쪽에 그 이름이 붙어요.',
+  },
+];
+---
+
+<GameLayout
+  slug="coin"
+  title="동전 던지기 — 앞면 뒷면 온라인 동전 던지기 무료"
+  description="누르면 동전이 돌아가는 온라인 동전 던지기. 앞면·뒷면 횟수와 비율을 세어 주고, 양쪽 이름을 '짜장/짬뽕'처럼 바꿀 수도 있어요. 선 정하기, 둘 중 하나 고를 때 바로 쓰세요."
+  heading="🪙 동전 던지기"
+  lead="동전을 누르면 빙글빙글 돌다가 앞면이나 뒷면으로 떨어져요."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="grid grid-cols-2 gap-2 sm:max-w-md">
+      <label class="text-sm font-semibold text-heading dark:text-white"
+        >앞면 이름 <input id="cn-a" class="mg-input mt-1" maxlength="10" value="앞면" /></label
+      >
+      <label class="text-sm font-semibold text-heading dark:text-white"
+        >뒷면 이름 <input id="cn-b" class="mg-input mt-1" maxlength="10" value="뒷면" /></label
+      >
+    </div>
+    <div class="mt-6 flex justify-center" style="perspective:800px">
+      <button type="button" id="cn-coin" class="cn-coin" aria-label="동전 던지기">
+        <span class="cn-face cn-front"><span id="cn-fa">앞면</span></span>
+        <span class="cn-face cn-back"><span id="cn-fb">뒷면</span></span>
+      </button>
+    </div>
+    <p
+      id="cn-result"
+      class="mt-5 min-h-[2.5rem] text-center text-3xl font-black text-heading dark:text-white"
+      aria-live="polite"
+    >
+      동전을 눌러 보세요
+    </p>
+    <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
+      <button type="button" class="mg-btn mg-primary" id="cn-btn" style="font-size:1.2rem;padding:.8rem 2rem"
+        >🪙 던지기</button
+      >
+      <button type="button" class="mg-btn" id="cn-reset">기록 지우기</button>
+    </div>
+    <p id="cn-stat" class="mt-4 text-center text-muted dark:text-slate-400"></p>
+    <p id="cn-seq" class="mt-1 break-all text-center text-lg tracking-widest text-heading dark:text-white"></p>
+  </div>
+
+  <h2>사용 방법</h2>
+  <ol>
+    <li>필요하면 앞면·뒷면 이름을 바꿉니다. 예: "짜장 / 짬뽕", "내가 / 네가".</li>
+    <li>동전이나 <strong>던지기</strong> 버튼을 누르면 동전이 돌다가 한쪽으로 멈춰요. PC는 스페이스바도 됩니다.</li>
+    <li>아래에 지금까지 나온 횟수와 비율, 최근 결과 순서가 쌓여요.</li>
+  </ol>
+
+  <h2>이럴 때 쓰기 좋아요</h2>
+  <ul>
+    <li><strong>선 정하기.</strong> 바둑·오목·보드게임에서 누가 먼저 할지 정할 때.</li>
+    <li><strong>둘 중 하나 고르기.</strong> 점심 메뉴 두 개 사이에서 고민될 때 이름을 바꿔 던져 보세요.</li>
+    <li>
+      <strong>확률 공부.</strong> 아이와 함께 50번, 100번 던져 보면서 앞면 비율이 50%에 가까워지는지 확인해 보세요. 처음 열
+      번은 꽤 쏠리다가 점점 반반에 가까워지는 걸 직접 볼 수 있어요.
+    </li>
+  </ul>
+  <p>
+    셋 이상 중에서 골라야 한다면 <a href="/games/roulette">돌림판 룰렛</a>이나 <a href="/games/ladder">사다리타기</a>가
+    더 편해요.
+  </p>
+</GameLayout>
+
+<style is:global>
+  .cn-coin {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    transform-style: preserve-3d;
+    touch-action: manipulation;
+  }
+  .cn-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    font-size: 2rem;
+    font-weight: 900;
+    padding: 1.2rem;
+    text-align: center;
+    word-break: keep-all;
+    line-height: 1.15;
+  }
+  .cn-front {
+    background: radial-gradient(circle at 35% 30%, #fde68a, #f59e0b 70%, #b45309);
+    color: #78350f;
+    border: 8px solid #d97706;
+  }
+  .cn-back {
+    background: radial-gradient(circle at 35% 30%, #e2e8f0, #94a3b8 70%, #475569);
+    color: #1e293b;
+    border: 8px solid #64748b;
+    transform: rotateY(180deg);
+  }
+</style>
+
+<script>
+  const $ = (id: string) => document.getElementById(id)!;
+  const coin = $('cn-coin');
+  const resultEl = $('cn-result');
+  const statEl = $('cn-stat');
+  const seqEl = $('cn-seq');
+  const inA = $('cn-a') as HTMLInputElement;
+  const inB = $('cn-b') as HTMLInputElement;
+  let angle = 0;
+  let busy = false;
+  let heads = 0;
+  let tails = 0;
+  let seq: boolean[] = [];
+
+  function names() {
+    return [inA.value.trim() || '앞면', inB.value.trim() || '뒷면'];
+  }
+  function syncNames() {
+    const [a, b] = names();
+    $('cn-fa').textContent = a;
+    $('cn-fb').textContent = b;
+    stat();
+  }
+  function stat() {
+    const [a, b] = names();
+    const n = heads + tails;
+    statEl.textContent = n
+      ? `${n}번 던짐 · ${a} ${heads}번 (${Math.round((heads / n) * 100)}%) · ${b} ${tails}번 (${Math.round((tails / n) * 100)}%)`
+      : '';
+    seqEl.textContent = seq
+      .slice(-20)
+      .map((h) => (h ? '🟡' : '⚪'))
+      .join('');
+  }
+
+  function flip() {
+    if (busy) return;
+    busy = true;
+    const a = new Uint8Array(1);
+    crypto.getRandomValues(a);
+    const isHeads = (a[0] & 1) === 0;
+    // 앞면이면 360의 배수, 뒷면이면 +180 으로 멈춤
+    const base = Math.ceil(angle / 360) * 360 + 360 * 5;
+    angle = base + (isHeads ? 0 : 180);
+    resultEl.textContent = '…';
+    coin.style.transition = 'transform 1.4s cubic-bezier(.2,.7,.2,1)';
+    coin.style.transform = `rotateY(${angle}deg)`;
+    setTimeout(() => {
+      const [na, nb] = names();
+      if (isHeads) heads++;
+      else tails++;
+      seq.push(isHeads);
+      resultEl.textContent = isHeads ? `🟡 ${na}!` : `⚪ ${nb}!`;
+      stat();
+      if (navigator.vibrate) navigator.vibrate(40);
+      busy = false;
+    }, 1450);
+  }
+
+  coin.addEventListener('click', flip);
+  $('cn-btn').addEventListener('click', flip);
+  $('cn-reset').addEventListener('click', () => {
+    heads = tails = 0;
+    seq = [];
+    resultEl.textContent = '동전을 눌러 보세요';
+    stat();
+  });
+  inA.addEventListener('input', syncNames);
+  inB.addEventListener('input', syncNames);
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON') return;
+    if (e.key === ' ') {
+      e.preventDefault();
+      flip();
+    }
+  });
+  syncNames();
+</script>

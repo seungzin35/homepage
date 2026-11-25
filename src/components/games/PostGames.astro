@@ -1,0 +1,50 @@
+---
+// 블로그 글 아래 "잠깐 쉬어 가기" 상자. 글마다 다른 미니게임 4개를 골라 보여 줍니다
+// (글 id로 정하는 고정 순서라 빌드할 때마다 바뀌지 않음).
+import { miniGames } from '~/data/minigames';
+import { getPermalink } from '~/utils/permalinks';
+
+export interface Props {
+  seed: string;
+}
+
+const { seed } = Astro.props;
+let h = 0;
+for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+const start = h % miniGames.length;
+// 같은 종류만 몰리지 않게 일정 간격으로 건너뛰며 고름
+const step = 5;
+const picks: typeof miniGames = [];
+for (let i = 0; picks.length < 4 && i < miniGames.length * step; i++) {
+  const g = miniGames[(start + i * step) % miniGames.length];
+  if (!picks.includes(g)) picks.push(g);
+}
+---
+
+<section class="mx-auto max-w-3xl px-4 pb-10 sm:px-6">
+  <div class="rounded-2xl border border-gray-200 p-5 dark:border-slate-800">
+    <div class="flex items-end justify-between">
+      <p class="font-bold text-heading dark:text-white">☕ 잠깐 쉬어 가기: 무료 미니게임</p>
+      <a href={getPermalink('/games')} class="text-sm font-medium text-muted hover:text-primary dark:text-slate-400"
+        >전체 보기 →</a
+      >
+    </div>
+    <ul class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {
+        picks.map((g) => (
+          <li>
+            <a
+              href={getPermalink(`/games/${g.slug}`)}
+              class="flex h-full flex-col items-center gap-1 rounded-xl border border-gray-200 p-3 text-center transition hover:border-primary dark:border-slate-700 dark:hover:border-indigo-400"
+            >
+              <span class="text-3xl" aria-hidden="true">
+                {g.icon}
+              </span>
+              <span class="text-sm font-bold text-heading dark:text-white">{g.name}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

@@ -18,6 +18,7 @@ import { findImage } from '~/utils/images';
 import { truncateAtWord } from '~/utils/utils';
 import type { MetaData } from '~/types';
 import RelatedPosts from '~/components/blog/RelatedPosts.astro';
+import PostGames from '~/components/games/PostGames.astro';
 import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
 import StructuredData from '~/components/common/StructuredData.astro';
 import { SITE } from 'astrowind:config';
@@ -99,4 +100,5 @@ const breadcrumbs = [
   </SinglePost>
   <ToBlogLink />
   <RelatedPosts post={post} />
+  <PostGames seed={post.id} />
 </Layout>

@@ -7,7 +7,7 @@ import { getPermalink } from '~/utils/permalinks';
 const metadata = {
   title: '미니게임 — 설치 없이 바로 하는 무료 웹게임',
   description:
-    '설치도 가입도 없이 바로 하는 무료 미니게임. 사다리타기·돌림판 같은 모임 도구, 짝 맞추기·속담 퀴즈 같은 두뇌 운동, 구구단·숫자 야구, 오목·스도쿠·지뢰찾기까지. 휴대폰과 PC 모두 됩니다.',
+    '설치도 가입도 없이 바로 하는 무료 미니게임. 사다리타기·돌림판·주사위·동전 던지기 같은 모임 도구, 초성 퀴즈·다른 그림 찾기·짝 맞추기 같은 두뇌 운동, 한글 타자 연습·구구단, 오목·스도쿠·지뢰찾기까지. 휴대폰과 PC 모두 됩니다.',
 };
 ---
 
@@ -18,12 +18,25 @@ const metadata = {
       🎮 미니게임
     </h1>
     <p class="mt-3 text-lg text-muted dark:text-slate-400">
-      설치도 가입도 없이 바로 하는 무료 게임이에요. 휴대폰과 PC 모두 되고, 최고 기록은 내 브라우저에 저장돼요.
+      설치도 가입도 없이 바로 하는 무료 게임 {miniGames.length}가지예요. 휴대폰과 PC 모두 되고, 최고 기록은 내
+      브라우저에 저장돼요.
     </p>
+    <nav class="mt-5 flex flex-wrap gap-2" aria-label="게임 종류">
+      {
+        miniGameGroups.map((group) => (
+          <a
+            href={`#${group.id}`}
+            class="rounded-full border border-gray-200 px-3 py-1.5 text-sm font-semibold text-heading hover:border-primary dark:border-slate-700 dark:text-white"
+          >
+            {group.title} {miniGames.filter((g) => g.group === group.id).length}
+          </a>
+        ))
+      }
+    </nav>
 
     {
       miniGameGroups.map((group) => (
-        <section class="mt-10">
+        <section class="mt-10 scroll-mt-24" id={group.id}>
           <h2 class="font-heading text-2xl font-bold text-heading dark:text-white">{group.title}</h2>
           <p class="mt-1 text-sm text-muted dark:text-slate-400">{group.description}</p>
           <ul class="mt-4 grid gap-4 sm:grid-cols-2">

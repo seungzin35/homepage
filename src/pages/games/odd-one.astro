@@ -1,0 +1,281 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '몇 단계까지 있나요?',
+    a: '모두 15단계예요. 3×3 칸에서 시작해 8×8 칸까지 늘어나고, 뒤로 갈수록 그림 차이가 작아집니다.',
+  },
+  {
+    q: '시간 제한이 있나요?',
+    a: '없어요. 천천히 찾아도 되고, 15단계를 다 마치면 걸린 시간과 틀린 횟수를 보여 줍니다. 가장 빠른 기록은 지금 쓰는 브라우저에 저장돼요.',
+  },
+  {
+    q: '아무리 봐도 못 찾겠어요.',
+    a: '힌트를 누르면 다른 그림이 있는 줄이 잠깐 빛나요. 휴대폰에서 그림이 작게 보이면 가로로 돌리거나 화면을 확대해 보세요.',
+  },
+  {
+    q: '그림 모양이 기기마다 달라 보여요.',
+    a: '그림은 이모지라서 안드로이드, 아이폰, 윈도우마다 모양이 조금씩 달라요. 어느 기기에서나 다른 그림 하나는 분명히 다르게 보이도록 차이가 있는 짝으로 골랐습니다.',
+  },
+];
+---
+
+<GameLayout
+  slug="odd-one"
+  title="다른 그림 찾기 — 무료 관찰력 게임 (15단계, 큰 그림)"
+  description="똑같은 그림 사이에 숨은 딱 하나 다른 그림을 찾는 무료 게임. 3×3부터 8×8까지 15단계, 시간 제한 없이 힌트도 있어요. 부모님, 아이와 함께 하는 관찰력·집중력 두뇌 게임입니다."
+  heading="🔍 다른 그림 찾기"
+  lead="같은 그림들 사이에 하나만 다른 그림이 있어요. 찾아서 눌러 보세요."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="flex flex-wrap items-center gap-2 text-lg font-bold text-heading dark:text-white">
+      <span><span id="od-level">1</span> / 15단계</span>
+      <span class="ml-auto">⏱ <span id="od-time">0</span>초 · ❌ <span id="od-miss">0</span></span>
+    </div>
+    <p id="od-status" class="mt-2 min-h-[2rem] text-xl font-bold text-heading dark:text-white" aria-live="polite"></p>
+    <div id="od-grid" class="mx-auto mt-2 grid w-full max-w-[520px] gap-1.5"></div>
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      <button type="button" class="mg-btn" id="od-hint">💡 힌트</button>
+      <button type="button" class="mg-btn mg-primary" id="od-new">🔄 처음부터</button>
+      <span id="od-best" class="ml-auto text-sm text-muted dark:text-slate-400"></span>
+    </div>
+  </div>
+
+  <h2>게임 방법</h2>
+  <ol>
+    <li>칸마다 같은 그림이 들어 있고, <strong>딱 한 칸</strong>만 그림이 다릅니다.</li>
+    <li>다른 그림을 찾아 누르면 다음 단계로 넘어가요. 틀린 칸을 누르면 틀린 횟수가 하나 늘어요.</li>
+    <li>단계가 오를수록 칸이 많아지고(3×3 → 8×8), 그림 차이도 작아져요.</li>
+    <li>15단계를 다 마치면 걸린 시간과 틀린 횟수로 기록이 남습니다.</li>
+  </ol>
+
+  <h2>빨리 찾는 요령</h2>
+  <ul>
+    <li>
+      <strong>한 칸씩 보지 말고 전체를 흐릿하게.</strong> 화면 가운데를 보며 넓게 보면 튀는 색이 먼저 눈에 들어와요.
+    </li>
+    <li>
+      <strong>색부터, 모양은 나중에.</strong> 색이 다른 경우가 많으니 먼저 색을 훑고, 그래도 없으면 표정이나 모양을 보세요.
+    </li>
+    <li><strong>줄을 나눠서.</strong> 칸이 많을 땐 위에서부터 한 줄씩 왼쪽→오른쪽으로 훑으면 빠뜨리지 않아요.</li>
+  </ul>
+
+  <h2>함께 하면 좋아요</h2>
+  <p>
+    규칙이 "다른 거 하나 찾기"뿐이라 글을 모르는 어린아이도 바로 할 수 있어요. 할머니, 할아버지와 손주가 한 화면을 같이
+    보며 누가 먼저 찾나 겨뤄 보세요. 같은 그림 짝을 기억하는 게임을 좋아한다면
+    <a href="/games/memory">같은 그림 짝 맞추기</a>도 해 보세요.
+  </p>
+</GameLayout>
+
+<style is:global>
+  #od-grid button {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.6rem;
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    line-height: 1;
+    touch-action: manipulation;
+  }
+  .dark #od-grid button {
+    background: rgb(30 41 59);
+    border-color: rgb(51 65 85);
+  }
+  #od-grid button.miss {
+    animation: od-shake 0.3s;
+    border-color: #ef4444;
+  }
+  #od-grid button.found {
+    border-color: #22c55e;
+    background: #dcfce7;
+    transform: scale(1.12);
+    transition: transform 0.2s;
+  }
+  #od-grid button.glow {
+    background: #fef9c3;
+    border-color: #facc15;
+  }
+  .dark #od-grid button.glow {
+    background: #713f12;
+  }
+  @keyframes od-shake {
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+</style>
+
+<script>
+  // [보통 그림, 다른 그림]. 앞쪽은 차이가 큰 짝, 뒤쪽은 차이가 작은 짝.
+  const EASY = [
+    ['🍎', '🍏'],
+    ['🐶', '🐱'],
+    ['⭐', '🌙'],
+    ['🌸', '🌼'],
+    ['🚗', '🚕'],
+    ['🔴', '🟢'],
+    ['🍓', '🍒'],
+  ];
+  const MID = [
+    ['🐻', '🐼'],
+    ['🌲', '🌳'],
+    ['❤️', '🧡'],
+    ['🟦', '🟪'],
+    ['🔒', '🔓'],
+    ['🐥', '🐤'],
+    ['🍊', '🍋'],
+  ];
+  const HARD = [
+    ['😀', '😃'],
+    ['😐', '😑'],
+    ['🕐', '🕑'],
+    ['🌕', '🌖'],
+    ['🙂', '🙃'],
+    ['😄', '😆'],
+    ['🔈', '🔉'],
+  ];
+  const SIZES = [3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8];
+  const LAST = SIZES.length;
+  const KEY = 'zin-odd-one-v1';
+
+  const $ = (id: string) => document.getElementById(id)!;
+  const grid = $('od-grid');
+  const levelEl = $('od-level');
+  const timeEl = $('od-time');
+  const missEl = $('od-miss');
+  const statusEl = $('od-status');
+  const bestEl = $('od-best');
+  const hintBtn = $('od-hint') as HTMLButtonElement;
+
+  let level = 1;
+  let miss = 0;
+  let t0 = 0;
+  let timer = 0;
+  let answerIdx = -1;
+  let size = 3;
+  let lock = false;
+  let best: { sec: number; miss: number } | null = null;
+  try {
+    best = JSON.parse(localStorage.getItem(KEY) || 'null');
+  } catch {
+    /* 무시 */
+  }
+  function showBest() {
+    bestEl.textContent = best ? `최고 기록 ${best.sec}초 (틀림 ${best.miss}번)` : '';
+  }
+  const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
+
+  function startAll() {
+    level = 1;
+    miss = 0;
+    missEl.textContent = '0';
+    clearInterval(timer);
+    t0 = 0;
+    timeEl.textContent = '0';
+    showBest();
+    buildLevel();
+  }
+
+  function buildLevel() {
+    lock = false;
+    hintBtn.disabled = false;
+    size = SIZES[level - 1];
+    levelEl.textContent = String(level);
+    const pool = level <= 5 ? EASY : level <= 10 ? MID : HARD;
+    const pair = pick(pool);
+    // 반반 확률로 짝의 순서를 바꿔서, 같은 그림이 늘 "다른 그림"이 되지 않게
+    const [same, odd] = Math.random() < 0.5 ? pair : [pair[1], pair[0]];
+    answerIdx = Math.floor(Math.random() * size * size);
+    grid.style.gridTemplateColumns = `repeat(${size}, minmax(0, 1fr))`;
+    // 칸 크기에 맞춰 그림 크기를 정함 (칸 너비의 60%)
+    const cell = (Math.min(grid.clientWidth || 340, 520) - (size - 1) * 6) / size;
+    const fontPx = Math.round(Math.min(56, cell * 0.6));
+    grid.innerHTML = '';
+    for (let i = 0; i < size * size; i++) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = i === answerIdx ? odd : same;
+      b.style.fontSize = `${fontPx}px`;
+      b.setAttribute('aria-label', `${Math.floor(i / size) + 1}번째 줄 ${(i % size) + 1}번째 칸`);
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        tap(i, b);
+      });
+      b.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          tap(i, b);
+        }
+      });
+      grid.appendChild(b);
+    }
+    statusEl.textContent =
+      level === 1 ? '다른 그림 하나를 찾아 누르세요.' : `${level}단계! 칸이 ${size}×${size}이에요.`;
+  }
+
+  function tap(i: number, b: HTMLButtonElement) {
+    if (lock) return;
+    if (!t0) {
+      t0 = performance.now();
+      timer = window.setInterval(() => {
+        timeEl.textContent = String(Math.floor((performance.now() - t0) / 1000));
+      }, 500);
+    }
+    if (i !== answerIdx) {
+      miss++;
+      missEl.textContent = String(miss);
+      b.classList.remove('miss');
+      void b.offsetWidth;
+      b.classList.add('miss');
+      setTimeout(() => b.classList.remove('miss'), 350);
+      if (navigator.vibrate) navigator.vibrate(60);
+      return;
+    }
+    lock = true;
+    b.classList.add('found');
+    if (navigator.vibrate) navigator.vibrate(25);
+    if (level >= LAST) return win();
+    statusEl.textContent = '👍 찾았어요!';
+    setTimeout(() => {
+      level++;
+      buildLevel();
+    }, 550);
+  }
+
+  function win() {
+    clearInterval(timer);
+    const sec = Math.max(1, Math.round((performance.now() - t0) / 1000));
+    timeEl.textContent = String(sec);
+    hintBtn.disabled = true;
+    const record = !best || sec < best.sec || (sec === best.sec && miss < best.miss);
+    if (record) {
+      best = { sec, miss };
+      try {
+        localStorage.setItem(KEY, JSON.stringify(best));
+      } catch {
+        /* 무시 */
+      }
+    }
+    statusEl.textContent = `🎉 15단계 완주! ${sec}초, 틀림 ${miss}번${record ? ' · 최고 기록!' : ''}`;
+    showBest();
+  }
+
+  hintBtn.addEventListener('click', () => {
+    if (lock) return;
+    const row = Math.floor(answerIdx / size);
+    const btns = [...grid.children] as HTMLElement[];
+    btns.slice(row * size, row * size + size).forEach((b) => b.classList.add('glow'));
+    setTimeout(() => btns.forEach((b) => b.classList.remove('glow')), 1200);
+    statusEl.textContent = `💡 ${row + 1}번째 줄에 있어요.`;
+  });
+  $('od-new').addEventListener('click', startAll);
+  startAll();
+</script>

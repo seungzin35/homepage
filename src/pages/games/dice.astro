@@ -1,0 +1,228 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '정말 무작위로 나오나요?',
+    a: '브라우저의 난수 함수(crypto.getRandomValues)로 1부터 6까지 고르게 뽑습니다. 이전에 나온 눈은 다음 결과에 영향을 주지 않아요.',
+  },
+  {
+    q: '주사위는 몇 개까지 굴릴 수 있나요?',
+    a: '한 번에 1개부터 6개까지 굴릴 수 있어요. 윷놀이·보드게임처럼 주사위 2개가 필요한 경우가 많아서 처음에는 2개로 맞춰 두었습니다.',
+  },
+  {
+    q: '지난 결과를 볼 수 있나요?',
+    a: '최근 10번의 결과와 합계가 아래 기록에 남습니다. 새로고침하면 기록은 지워져요.',
+  },
+];
+---
+
+<GameLayout
+  slug="dice"
+  title="주사위 굴리기 — 온라인 주사위 1~6개 무료 (합계 표시)"
+  description="누르면 바로 굴러가는 온라인 주사위. 1개부터 6개까지 한 번에 굴리고 합계와 최근 기록을 보여 줍니다. 보드게임 주사위를 잃어버렸을 때, 순서 정할 때 휴대폰으로 바로 쓰세요."
+  heading="🎲 주사위 굴리기"
+  lead="주사위 개수를 고르고 화면을 누르세요. 합계도 바로 계산해 줍니다."
+  faqs={faqs}
+>
+  <div slot="game" class="select-none">
+    <div class="flex flex-wrap items-center gap-2" id="dc-count">
+      <span class="mr-1 font-bold text-heading dark:text-white">개수</span>
+    </div>
+    <button
+      type="button"
+      id="dc-roll"
+      class="mt-4 flex min-h-[220px] w-full flex-wrap content-center items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-indigo-300 bg-indigo-50/60 p-6 dark:border-indigo-800 dark:bg-slate-900"
+      aria-label="주사위 굴리기"
+    >
+    </button>
+    <p id="dc-sum" class="mt-4 text-center text-3xl font-black text-heading dark:text-white" aria-live="polite">
+      눌러서 굴려 보세요
+    </p>
+    <div class="mt-4 flex justify-center">
+      <button type="button" class="mg-btn mg-primary" id="dc-btn" style="font-size:1.2rem;padding:.8rem 2rem"
+        >🎲 굴리기</button
+      >
+    </div>
+    <ol id="dc-log" class="mt-5 grid gap-1 text-muted dark:text-slate-400"></ol>
+  </div>
+
+  <h2>사용 방법</h2>
+  <ol>
+    <li>위에서 주사위 <strong>개수</strong>(1~6개)를 고릅니다.</li>
+    <li>
+      주사위 그림이나 <strong>굴리기</strong> 버튼을 누르면 잠깐 굴러간 뒤 결과가 나와요. PC는 스페이스바도 됩니다.
+    </li>
+    <li>주사위가 2개 이상이면 <strong>합계</strong>를 크게 보여 주고, 아래에 최근 10번의 기록이 남아요.</li>
+  </ol>
+
+  <h2>이럴 때 쓰기 좋아요</h2>
+  <ul>
+    <li><strong>보드게임 주사위를 잃어버렸을 때.</strong> 부루마블 같은 게임은 주사위 2개를 골라 두면 됩니다.</li>
+    <li><strong>순서 정하기.</strong> 한 사람씩 주사위 1개를 굴려 높은 숫자부터 시작해 보세요.</li>
+    <li>
+      <strong>아이와 숫자 놀이.</strong> 주사위 2~3개를 굴리고 합계를 먼저 말하는 사람이 이기는 덧셈 게임으로도 좋아요.
+    </li>
+  </ul>
+
+  <h2>주사위 확률 알아보기</h2>
+  <p>
+    주사위 1개는 1부터 6까지 모두 1/6로 똑같이 나옵니다. 그런데 2개를 굴려 합계를 보면 이야기가 달라져요. 합계 7을
+    만드는 방법은 (1,6) (2,5) (3,4) (4,3) (5,2) (6,1)로 6가지라 36가지 중 6가지, 즉 1/6로 가장 자주 나오고, 합계 2와
+    12는 한 가지 방법뿐이라 1/36로 가장 드물어요. 여러 번 굴려 보면서 정말 7이 자주 나오는지 기록을 확인해 보세요.
+  </p>
+</GameLayout>
+
+<style is:global>
+  .dc-die {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 84px;
+    height: 84px;
+    padding: 10px;
+    border-radius: 18px;
+    background: #fff;
+    border: 3px solid #334155;
+    box-shadow: 0 4px 0 #334155;
+  }
+  .dc-die i {
+    width: 15px;
+    height: 15px;
+    margin: auto;
+    border-radius: 50%;
+    background: #0f172a;
+    visibility: hidden;
+  }
+  .dc-die i.on {
+    visibility: visible;
+  }
+  .dc-die.one i.on {
+    background: #dc2626;
+    width: 20px;
+    height: 20px;
+  }
+  .dc-die.rolling {
+    animation: dc-shake 0.12s infinite;
+  }
+  @keyframes dc-shake {
+    0% {
+      transform: rotate(-12deg) translateY(-4px);
+    }
+    50% {
+      transform: rotate(12deg) translateY(2px);
+    }
+    100% {
+      transform: rotate(-12deg) translateY(-4px);
+    }
+  }
+</style>
+
+<script>
+  const $ = (id: string) => document.getElementById(id)!;
+  const box = $('dc-roll');
+  const sumEl = $('dc-sum');
+  const log = $('dc-log');
+  const countBox = $('dc-count');
+  // 3×3 칸 중 점이 찍히는 자리 (0~8)
+  const PIPS: Record<number, number[]> = {
+    1: [4],
+    2: [2, 6],
+    3: [2, 4, 6],
+    4: [0, 2, 6, 8],
+    5: [0, 2, 4, 6, 8],
+    6: [0, 2, 3, 5, 6, 8],
+  };
+  let count = 2;
+  let busy = false;
+  const history: number[][] = [];
+
+  function rand6() {
+    const a = new Uint32Array(1);
+    // 6으로 나눈 나머지가 고르게 나오도록 범위 밖 값은 버림
+    const limit = Math.floor(0xffffffff / 6) * 6;
+    do crypto.getRandomValues(a);
+    while (a[0] >= limit);
+    return (a[0] % 6) + 1;
+  }
+
+  function dieEl(v: number) {
+    const d = document.createElement('span');
+    d.className = 'dc-die' + (v === 1 ? ' one' : '');
+    d.setAttribute('aria-label', `${v}`);
+    for (let i = 0; i < 9; i++) {
+      const p = document.createElement('i');
+      if (PIPS[v].includes(i)) p.className = 'on';
+      d.appendChild(p);
+    }
+    return d;
+  }
+
+  function draw(vals: number[], rolling = false) {
+    box.innerHTML = '';
+    vals.forEach((v) => {
+      const d = dieEl(v);
+      if (rolling) d.classList.add('rolling');
+      box.appendChild(d);
+    });
+  }
+
+  function roll() {
+    if (busy) return;
+    busy = true;
+    sumEl.textContent = '데굴데굴…';
+    let n = 0;
+    const iv = setInterval(() => {
+      draw(
+        Array.from({ length: count }, () => rand6()),
+        true
+      );
+      if (++n >= 8) {
+        clearInterval(iv);
+        const vals = Array.from({ length: count }, () => rand6());
+        draw(vals);
+        const sum = vals.reduce((a, b) => a + b, 0);
+        sumEl.textContent = count > 1 ? `합계 ${sum}` : `${vals[0]}`;
+        history.unshift(vals);
+        if (history.length > 10) history.pop();
+        log.innerHTML = '';
+        history.forEach((h, i) => {
+          const li = document.createElement('li');
+          li.textContent = `${i === 0 ? '방금' : `${i}번 전`}: ${h.join(' · ')}${h.length > 1 ? `  (합 ${h.reduce((a, b) => a + b, 0)})` : ''}`;
+          log.appendChild(li);
+        });
+        if (navigator.vibrate) navigator.vibrate(30);
+        busy = false;
+      }
+    }, 70);
+  }
+
+  const btns: HTMLButtonElement[] = [];
+  for (let k = 1; k <= 6; k++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mg-btn';
+    b.textContent = `${k}개`;
+    b.addEventListener('click', () => {
+      count = k;
+      btns.forEach((x, i) => x.setAttribute('aria-pressed', String(i + 1 === count)));
+      draw(Array.from({ length: count }, (_, i) => (i % 6) + 1));
+      sumEl.textContent = '눌러서 굴려 보세요';
+    });
+    btns.push(b);
+    countBox.appendChild(b);
+  }
+  btns[count - 1].setAttribute('aria-pressed', 'true');
+  draw([1, 2]);
+
+  box.addEventListener('click', roll);
+  $('dc-btn').addEventListener('click', roll);
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON') return;
+    if (e.key === ' ') {
+      e.preventDefault();
+      roll();
+    }
+  });
+</script>

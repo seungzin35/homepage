@@ -1,0 +1,277 @@
+---
+import GameLayout from '~/components/games/GameLayout.astro';
+
+const faqs = [
+  {
+    q: '타수는 어떻게 계산하나요?',
+    a: '맞게 친 글자를 자음·모음 단위(자모)로 세어 1분 동안 몇 번 쳤는지로 바꿉니다. 예를 들어 "한"은 ㅎ·ㅏ·ㄴ 3타, "과"는 ㄱ·ㅗ·ㅏ 3타예요. 띄어쓰기와 문장 부호도 1타로 셉니다. 타자 연습 프로그램마다 세는 방식이 조금씩 달라서 숫자가 똑같지 않을 수 있어요.',
+  },
+  {
+    q: '정확도는 무엇인가요?',
+    a: '문장의 글자 중에서 맞게 친 글자의 비율이에요. 틀린 글자가 있으면 그 글자는 타수에도 들어가지 않습니다.',
+  },
+  {
+    q: '휴대폰에서도 되나요?',
+    a: '네. 휴대폰 자판으로 쳐도 되지만, 타자 연습은 PC 키보드로 해야 실력이 늘어요. 휴대폰은 천지인·쿼티 자판에 따라 타수 차이가 큽니다.',
+  },
+  {
+    q: '평균 타수는 어느 정도인가요?',
+    a: '공식적인 평균은 없어서 숫자로 말씀드리기 어려워요. 다른 사람과 비교하기보다 같은 기기로 꾸준히 해서 내 기록이 오르는지 보세요. 최고 기록은 지금 쓰는 브라우저에 저장됩니다.',
+  },
+];
+---
+
+<GameLayout
+  slug="typing"
+  title="한글 타자 연습 — 무료 타수 측정 (짧은 글 연습)"
+  description="속담 문장을 따라 치며 분당 타수와 정확도를 재는 무료 한글 타자 연습. 설치 없이 브라우저에서 바로, 틀린 글자는 빨간색으로 보여 줘요. 아이 타자 연습, 부모님 컴퓨터 연습에 좋아요."
+  heading="⌨️ 한글 타자 연습"
+  lead="위에 나온 문장을 아래 칸에 똑같이 치고 Enter를 누르세요. 한 판에 5문장입니다."
+  faqs={faqs}
+>
+  <div slot="game">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-lg font-bold text-heading dark:text-white">
+      <span><span id="ty-n">1</span> / 5문장</span>
+      <span>타수 <span id="ty-cpm">0</span></span>
+      <span>정확도 <span id="ty-acc">100</span>%</span>
+      <span id="ty-best" class="ml-auto text-sm font-medium text-muted dark:text-slate-400"></span>
+    </div>
+    <div
+      class="mt-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50/60 p-5 dark:border-indigo-800 dark:bg-slate-900"
+    >
+      <p id="ty-target" class="text-2xl font-bold leading-relaxed tracking-wide md:text-3xl" aria-live="polite"></p>
+      <p id="ty-next" class="mt-2 text-sm text-muted dark:text-slate-400"></p>
+    </div>
+    <input
+      id="ty-input"
+      class="mg-input mt-3"
+      style="font-size:1.5rem;padding:.75rem .9rem"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      placeholder="여기에 치세요"
+      aria-label="문장 입력"
+    />
+    <div class="mt-3 flex flex-wrap gap-2">
+      <button type="button" class="mg-btn mg-primary" id="ty-enter">다음 문장 (Enter)</button>
+      <button type="button" class="mg-btn" id="ty-restart">🔄 새로 시작</button>
+    </div>
+    <div id="ty-result" class="mt-4"></div>
+  </div>
+
+  <h2>연습 방법</h2>
+  <ol>
+    <li>파란 칸에 나온 문장을 보고 아래 칸에 똑같이 칩니다. 첫 글자를 치는 순간 시간을 재기 시작해요.</li>
+    <li>맞게 친 글자는 초록색, 틀린 글자는 빨간색으로 바뀝니다.</li>
+    <li>다 쳤으면 <strong>Enter</strong>를 누르세요. 그 문장의 타수와 정확도가 나오고 다음 문장으로 넘어갑니다.</li>
+    <li>5문장을 다 치면 평균 타수와 정확도를 보여 주고, 최고 기록을 저장해요.</li>
+  </ol>
+
+  <h2>타수가 오르는 연습 요령</h2>
+  <ul>
+    <li>
+      <strong>손가락 자리 지키기.</strong> 왼손 검지는 <kbd>ㄹ</kbd>(F), 오른손 검지는 <kbd>ㅓ</kbd>(J)에 둡니다. 두
+      키에 있는 작은 돌기를 손끝으로 찾으면 키보드를 안 보고도 자리를 잡을 수 있어요.
+    </li>
+    <li><strong>빠르기보다 정확하게.</strong> 틀린 글자는 타수에 안 들어가요. 정확도 95% 이상을 먼저 목표로 하세요.</li>
+    <li><strong>화면만 보기.</strong> 키보드를 내려다보는 습관을 버리면 처음엔 느려도 금방 빨라집니다.</li>
+    <li><strong>매일 5분.</strong> 한 번에 오래 하는 것보다 짧게 자주 하는 편이 손에 잘 익어요.</li>
+  </ul>
+  <p>문장은 <a href="/games/proverb">속담 퀴즈</a>에 나오는 속담이라, 치면서 속담 공부도 함께 할 수 있어요.</p>
+</GameLayout>
+
+<style is:global>
+  #ty-target .ok {
+    color: #16a34a;
+  }
+  #ty-target .bad {
+    color: #fff;
+    background: #ef4444;
+    border-radius: 0.2rem;
+  }
+  #ty-target .cur {
+    border-bottom: 3px solid #6366f1;
+  }
+  #ty-target .todo {
+    color: #334155;
+  }
+  .dark #ty-target .todo {
+    color: #e2e8f0;
+  }
+</style>
+
+<script>
+  import { proverbs } from '~/data/proverbs';
+
+  const ROUND = 5;
+  const KEY = 'zin-typing-v1';
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const target = $('ty-target');
+  const nextEl = $('ty-next');
+  const input = $<HTMLInputElement>('ty-input');
+  const nEl = $('ty-n');
+  const cpmEl = $('ty-cpm');
+  const accEl = $('ty-acc');
+  const bestEl = $('ty-best');
+  const result = $('ty-result');
+
+  const VOWEL2 = new Set([9, 10, 11, 14, 15, 16, 19]); // ㅘㅙㅚㅝㅞㅟㅢ
+  const FINAL2 = new Set([3, 5, 6, 9, 10, 11, 12, 13, 14, 15, 18]); // ㄳㄵㄶㄺㄻㄼㄽㄾㄿㅀㅄ
+  /** 글자 하나를 치는 데 드는 자모(타) 수 */
+  function strokes(ch: string) {
+    const c = ch.charCodeAt(0) - 0xac00;
+    if (c < 0 || c >= 11172) return 1;
+    const med = Math.floor((c % 588) / 28);
+    const fin = c % 28;
+    return 1 + (VOWEL2.has(med) ? 2 : 1) + (fin === 0 ? 0 : FINAL2.has(fin) ? 2 : 1);
+  }
+
+  let list: string[] = [];
+  let idx = 0;
+  let t0 = 0;
+  let totalStrokes = 0;
+  let totalMs = 0;
+  let totalOk = 0;
+  let totalChars = 0;
+  let over = false;
+  let best = 0;
+  try {
+    best = Number(localStorage.getItem(KEY)) || 0;
+  } catch {
+    /* 무시 */
+  }
+  const showBest = () => (bestEl.textContent = best ? `최고 ${best}타` : '');
+
+  function shuffle<T>(a: T[]) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function start() {
+    list = shuffle(proverbs.map((p) => `${p.head} ${p.tail}`)).slice(0, ROUND);
+    idx = 0;
+    totalStrokes = totalMs = totalOk = totalChars = 0;
+    over = false;
+    result.innerHTML = '';
+    cpmEl.textContent = '0';
+    accEl.textContent = '100';
+    input.disabled = false;
+    showBest();
+    show();
+  }
+
+  function show() {
+    t0 = 0;
+    input.value = '';
+    nEl.textContent = String(idx + 1);
+    nextEl.textContent = idx < ROUND - 1 ? `다음: ${list[idx + 1]}` : '마지막 문장이에요';
+    render(false);
+    if (matchMedia('(pointer:fine)').matches) input.focus();
+  }
+
+  function render(composing: boolean) {
+    const want = [...list[idx]];
+    const got = [...input.value];
+    target.innerHTML = '';
+    want.forEach((ch, i) => {
+      const s = document.createElement('span');
+      if (i < got.length) {
+        // 조합 중인 마지막 글자는 아직 판정하지 않음
+        if (composing && i === got.length - 1) s.className = 'cur';
+        else s.className = got[i] === ch ? 'ok' : 'bad';
+      } else s.className = i === got.length ? 'todo cur' : 'todo';
+      s.textContent = ch;
+      target.appendChild(s);
+    });
+  }
+
+  function submit() {
+    if (over) return;
+    const want = [...list[idx]];
+    const got = [...input.value];
+    if (!got.length) return;
+    const ms = t0 ? performance.now() - t0 : 0;
+    let ok = 0;
+    let st = 0;
+    want.forEach((ch, i) => {
+      if (got[i] === ch) {
+        ok++;
+        st += strokes(ch);
+      }
+    });
+    totalOk += ok;
+    totalChars += Math.max(want.length, got.length);
+    totalStrokes += st;
+    totalMs += Math.max(ms, 1000);
+    const cpm = Math.round((st / Math.max(ms, 1000)) * 60000);
+    const acc = Math.round((ok / Math.max(want.length, got.length)) * 100);
+    cpmEl.textContent = String(cpm);
+    accEl.textContent = String(acc);
+    idx++;
+    if (idx < ROUND) show();
+    else finish();
+  }
+
+  function finish() {
+    over = true;
+    input.disabled = true;
+    const cpm = Math.round((totalStrokes / totalMs) * 60000);
+    const acc = Math.round((totalOk / totalChars) * 100);
+    cpmEl.textContent = String(cpm);
+    accEl.textContent = String(acc);
+    const record = acc >= 90 && cpm > best;
+    if (record) {
+      best = cpm;
+      try {
+        localStorage.setItem(KEY, String(best));
+      } catch {
+        /* 무시 */
+      }
+    }
+    showBest();
+    target.textContent = '🎉 다 쳤어요!';
+    nextEl.textContent = '';
+    result.innerHTML = `<div class="rounded-2xl border-2 border-indigo-300 p-5 text-center dark:border-indigo-700">
+      <p class="text-3xl font-black text-heading dark:text-white">평균 ${cpm}타 · 정확도 ${acc}%</p>
+      <p class="mt-2 text-muted">${record ? '🏆 최고 기록이에요!' : acc < 90 ? '정확도 90% 이상일 때 최고 기록으로 저장돼요.' : '좋아요! 한 번 더 해 볼까요?'}</p>
+    </div>`;
+  }
+
+  input.addEventListener('input', (e) => {
+    if (!t0 && input.value) t0 = performance.now();
+    render((e as InputEvent).isComposing);
+  });
+  // 한글 조합 중에 Enter를 누르면 브라우저마다 keydown이 조합 중/조합 후로 한 번 또는 두 번 옵니다.
+  // 조합 중 Enter는 글자 확정 뒤에 제출하고, 바로 이어 오는 두 번째 Enter는 무시합니다.
+  let pendingEnter = false;
+  let lastSubmit = 0;
+  function enter() {
+    if (performance.now() - lastSubmit < 250) return;
+    lastSubmit = performance.now();
+    submit();
+  }
+  input.addEventListener('compositionend', () => {
+    render(false);
+    if (pendingEnter) {
+      pendingEnter = false;
+      setTimeout(enter, 0);
+    }
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.keyCode !== 229) return;
+    if (e.isComposing || e.keyCode === 229) {
+      if (e.key === 'Enter') pendingEnter = true;
+      return;
+    }
+    e.preventDefault();
+    enter();
+  });
+  $('ty-enter').addEventListener('click', () => {
+    submit();
+  });
+  $('ty-restart').addEventListener('click', start);
+  start();
+</script>
