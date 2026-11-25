@@ -79,6 +79,7 @@ tags:
 
 ## 함께 보면 좋은 글
 
+- [갤럭시 화면 자동 회전이 안 될 때 해결 방법](/galaxy-screen-not-rotating)
 - [아이폰 화면 녹화하는 방법 (소리까지 같이 녹음하기)](/iphone-screen-recording)
 - [갤럭시 저장공간 부족할 때 용량 늘리는 방법 5가지](/galaxy-storage-full)
 

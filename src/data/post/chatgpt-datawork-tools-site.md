@@ -93,5 +93,6 @@ tags:
 
 ## 함께 보면 좋은 글
 
+- [매일 질문 하나에 한마디, 같이 키우는 캐릭터: 동네 커뮤니티 「뭉치네」를 열었습니다](/mungchine-community-intro)
 - [클로드 스킬 설치 방법, SEO 점검 스킬로 내 블로그를 점검해 봤습니다](/claude-skill-seo-audit)
 - [AI로 블로그 만들기, 실제로 들어간 돈과 시간 공개](/ai-blog-real-cost-time)

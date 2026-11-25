@@ -88,6 +88,7 @@ Google 고객센터에서는 삭제하면 이렇게 된다고 안내합니다.
 
 ## 함께 보면 좋은 글
 
+- [크롬 비밀번호 저장 안 됨, 저장할지 묻지 않을 때 해결 방법 (PC·갤럭시)](/chrome-password-not-saving)
 - [크롬 '연결이 비공개로 설정되어 있지 않습니다' 오류 해결 방법](/chrome-connection-not-private)
 - [크롬 팝업 차단 해제 방법 (특정 사이트만 허용하기, PC·안드로이드)](/chrome-popup-allow-block)
 

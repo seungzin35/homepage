@@ -73,3 +73,7 @@ tags:
 ## 앞으로
 
 이번 편은 이야기가 3장까지 이어진 업데이트였습니다. 개발일지는 앞으로도 이어서 올리겠습니다. 지난 개발일지는 [1편](/wuxia-devlog1-shorts-walking), [2편](/wuxia-devlog2-title-bone-dice), [3편](/wuxia-devlog3-new-areas-rivals)에서 볼 수 있습니다.
+
+## 함께 보면 좋은 글
+
+- [쟁반 든 점소이의 첫 싸움: 무협 RPG 「청석진」 1분 플레이 영상](/wuxia-letsplay-ep1)

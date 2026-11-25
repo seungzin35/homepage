@@ -67,4 +67,5 @@ tags:
 
 ## 함께 보면 좋은 글
 
+- [웹소설 유료화 도전기 3화: 조회수 2만을 넘었습니다](/novel-paid-challenge-ep3)
 - [웹소설 유료화 도전기 2화: 3일 만에 조회수가 3.6배가 된 작품](/novel-paid-challenge-ep2)

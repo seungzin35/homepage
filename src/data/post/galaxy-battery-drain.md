@@ -117,6 +117,7 @@ tags:
 
 ## 함께 보면 좋은 글
 
+- [갤럭시 앱 알림이 안 올 때 해결 방법 (카톡·은행 앱 알림 늦게 옴)](/galaxy-app-notifications-not-coming)
 - [아이폰 배터리 성능 상태 확인 방법 (최대 용량 몇 %면 교체?)](/iphone-battery-health-check)
 - [갤럭시 와이파이가 저절로 꺼지거나 켜질 때 해결 방법](/galaxy-wifi-turns-off-by-itself)
 
