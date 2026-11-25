@@ -34,7 +34,6 @@ export const categories = [
 
 const itCategories = categories.filter((category) => !category.isGame && !category.isAi && !category.isNovel);
 const aiCategory = categories.find((category) => category.isAi);
-const novelCategory = categories.find((category) => category.isNovel);
 export const gameCategories = categories.filter((category) => category.isGame);
 
 export const headerData = {
@@ -48,14 +47,14 @@ export const headerData = {
       links: itCategories.map(({ text, href }) => ({ text, href })),
     },
     ...(aiCategory ? [{ text: aiCategory.text, href: aiCategory.href }] : []),
-    ...(novelCategory ? [{ text: novelCategory.text, href: novelCategory.href }] : []),
-    {
-      text: '게임 개발기',
-      links: gameCategories.map(({ text, href }) => ({ text, href })),
-    },
+    // 웹소설 메뉴 자리에 미니게임 (웹소설 글과 카테고리 페이지는 그대로, 푸터에서 들어갈 수 있음)
     {
       text: '미니게임',
       href: getPermalink('/games'),
+    },
+    {
+      text: '게임 개발기',
+      links: gameCategories.map(({ text, href }) => ({ text, href })),
     },
     {
       text: '소개',
