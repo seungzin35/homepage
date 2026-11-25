@@ -27,6 +27,18 @@ const gameSections = gameCategories
 // Only the wuxia game has a public demo so far.
 const DEMOS: Record<string, string> = { '무협 게임': 'https://zinnote.itch.io/cheongseok-demo' };
 const countByCategory = (name: string) => allPosts.filter((post) => post.category?.title === name).length;
+// 메인 카테고리 칸: 웹소설 자리에 미니게임 카드
+const homeCards = categories.map((category) =>
+  category.isNovel
+    ? {
+        text: '미니게임',
+        description: '사다리타기, 초성 퀴즈, 타자 연습까지. 설치 없이 바로 하는 무료 게임',
+        icon: 'tabler:device-gamepad-2',
+        href: getPermalink('/games'),
+        count: `게임 ${miniGames.length}개`,
+      }
+    : { ...category, count: `글 ${countByCategory(category.text)}개` }
+);
 
 const metadata = {
   title: `${SITE?.name} — AI로 혼자 만드는 IT·게임·웹소설 도전 기록`,
@@ -91,7 +103,7 @@ const structuredData = [
     <h2 class="mb-6 font-heading text-2xl font-bold text-heading dark:text-white">카테고리</h2>
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
       {
-        categories.map(({ text, description, icon, href }) => (
+        homeCards.map(({ text, description, icon, href, count }) => (
           <a
             href={href}
             class="group rounded-2xl border border-gray-200 p-5 transition hover:-translate-y-0.5 hover:border-primary hover:shadow-lg dark:border-slate-800 dark:hover:border-indigo-400"
@@ -101,7 +113,7 @@ const structuredData = [
             </span>
             <p class="flex items-baseline justify-between gap-2 font-bold text-heading dark:text-white">
               {text}
-              <span class="text-xs font-medium text-muted dark:text-slate-400">글 {countByCategory(text)}개</span>
+              <span class="text-xs font-medium text-muted dark:text-slate-400">{count}</span>
             </p>
             <p class="mt-1 text-sm text-muted dark:text-slate-400">{description}</p>
           </a>
